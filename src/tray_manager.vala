@@ -186,7 +186,17 @@ namespace Knotes {
             entry.add("i", size);
             entry.add("i", stride);
             entry.add("b", true);  // has_alpha
-            entry.add("ay", pixels);
+
+            // Build the byte array variant via from_bytes to avoid Vala's
+            // variadic limitation with the "ay" format specifier in
+            // VariantBuilder.add(), which doesn't pass the array length.
+            var pixmap_var = new Variant.from_bytes(
+                new VariantType("ay"),
+                new Bytes(pixels),
+                true
+            );
+            entry.add_value(pixmap_var);
+
             outer.add_value(entry.end());
             return outer.end();
         }
