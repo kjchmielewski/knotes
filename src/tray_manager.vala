@@ -1,129 +1,108 @@
 namespace Knotes {
 
     /**
-     * Minimal implementation of the StatusNotifierItem D-Bus protocol
-     * (KDE's System Tray Protocol, also used by GNOME AppIndicator).
+     * D-Bus interface for the StatusNotifierItem protocol (SNI).
      *
-     * This is the modern Wayland-compatible tray icon standard.
-     * Uses Cairo to generate the icon pixmap — no icon theme dependency.
-     *
-     * IMPORTANT: In Vala's D-Bus binding, property getters are detected
-     * ONLY by the `get_PropertyName` method naming convention.
-     * The [DBus(name = "...")] annotation on a getter would turn it
-     * into a D-Bus METHOD instead of a PROPERTY, which would break
-     * SNI's property-based protocol. So property getters have NO
-     * [DBus(name = "...")] annotation — the naming is enough.
+     * Vala translates abstract properties and methods in a [DBus]-annotated
+     * interface directly into D-Bus properties, methods, and signals.
+     * This avoids Vala's class-level D-Bus binding which doesn't generate
+     * property entries — the root cause of the invisible tray icon.
      */
     [DBus(name = "org.kde.StatusNotifierItem")]
-    public class StatusNotifierItemImpl : GLib.Object {
+    public interface StatusNotifierItemIface : GLib.Object {
+
+        // --- Properties ---
+        public abstract string Category { owned get; }
+        public abstract string Id { owned get; }
+        public abstract string Title { owned get; }
+        public abstract string Status { owned get; }
+        public abstract int32 WindowId { get; }
+        public abstract string IconName { owned get; }
+        public abstract string[] IconThemePath { owned get; }
+        public abstract bool ItemIsMenu { get; }
+        public abstract string Menu { owned get; }
+        public abstract Variant IconPixmap { owned get; }
+        public abstract Variant ToolTip { owned get; }
+
+        // --- Methods ---
+        public abstract void Activate(int32 x, int32 y) throws GLib.Error;
+        public abstract void SecondaryActivate(int32 x, int32 y) throws GLib.Error;
+        public abstract void ContextMenu(int32 x, int32 y) throws GLib.Error;
+        public abstract void Scroll(int32 delta, string orientation) throws GLib.Error;
+
+        // --- Signals ---
+        public signal void NewIcon();
+        public signal void NewToolTip();
+    }
+
+    /**
+     * Implementation of the StatusNotifierItem D-Bus interface.
+     *
+     * Generates the tray icon using Cairo (no icon theme dependency).
+     */
+    public class StatusNotifierItemImpl : GLib.Object, StatusNotifierItemIface {
         private const int ICON_SIZE = 24;
 
+        // Internal signals (not D-Bus)
         public signal void toggle_window();
         public signal void quit_app();
 
         // --- D-Bus Properties ---
-        // Vala convention: get_PropertyName → D-Bus property "PropertyName"
-        // NO [DBus(name = ...)] annotation on these! That would make them
-        // D-Bus methods instead of properties.
 
-        public string get_Category() throws GLib.Error {
-            return "ApplicationStatus";
+        public string Category { owned get { return "ApplicationStatus"; } }
+        public string Id { owned get { return "knotes"; } }
+        public string Title { owned get { return "Knotes"; } }
+        public string Status { owned get { return "Active"; } }
+        public int32 WindowId { get { return 0; } }
+        public string IconName { owned get { return "com.knotes.app"; } }
+        public string[] IconThemePath { owned get { return {}; } }
+        public bool ItemIsMenu { get { return false; } }
+        public string Menu { owned get { return "/com/knotes/app/menu"; } }
+
+        public Variant IconPixmap {
+            owned get { return generate_pixmap_variant(ICON_SIZE); }
         }
 
-        public string get_Id() throws GLib.Error {
-            return "knotes";
-        }
-
-        public string get_Title() throws GLib.Error {
-            return "Knotes";
-        }
-
-        public string get_Status() throws GLib.Error {
-            return "Active";
-        }
-
-        public int32 get_WindowId() throws GLib.Error {
-            return 0;
-        }
-
-        public string get_IconName() throws GLib.Error {
-            return "com.knotes.app";
-        }
-
-        public string[] get_IconThemePath() throws GLib.Error {
-            return {};
-        }
-
-        public bool get_ItemIsMenu() throws GLib.Error {
-            return false;
-        }
-
-        public string get_Menu() throws GLib.Error {
-            return "/com/knotes/app/menu";
-        }
-
-        /**
-         * Provides the icon as raw ARGB32 pixel data so the tray
-         * implementation never needs to look up a themed icon file.
-         * This is what makes the icon appear reliably on all DEs.
-         *
-         * SNI spec format: a(iiibay)
-         *   struct { int32 width, int32 height, int32 rowstride,
-         *            bool has_alpha, array<byte> data }
-         */
-        public Variant get_IconPixmap() throws GLib.Error {
-            return generate_pixmap_variant(ICON_SIZE);
-        }
-
-        public Variant get_ToolTip() throws GLib.Error {
-            var builder = new VariantBuilder(new VariantType("(sa{sv}ss)"));
-            builder.add("s", "icon");
-            var dict_builder = new VariantBuilder(new VariantType("a{sv}"));
-            builder.add_value(dict_builder.end());
-            builder.add("s", "Knotes");
-            builder.add("s", "A simple note-taking app");
-            return builder.end();
+        public Variant ToolTip {
+            owned get {
+                var builder = new VariantBuilder(new VariantType("(sa{sv}ss)"));
+                builder.add("s", "icon");
+                var dict_builder = new VariantBuilder(new VariantType("a{sv}"));
+                builder.add_value(dict_builder.end());
+                builder.add("s", "Knotes");
+                builder.add("s", "A simple note-taking app");
+                return builder.end();
+            }
         }
 
         // --- D-Bus Methods ---
-        // These DO need the [DBus(name = "...")] annotation to map
-        // Vala method names to the D-Bus method names the SNI spec expects.
 
-        [DBus(name = "Activate")]
-        public void activate(int32 x, int32 y) throws GLib.Error {
+        public void Activate(int32 x, int32 y) throws GLib.Error {
             toggle_window();
         }
 
-        [DBus(name = "SecondaryActivate")]
-        public void secondary_activate(int32 x, int32 y) throws GLib.Error {
+        public void SecondaryActivate(int32 x, int32 y) throws GLib.Error {
             toggle_window();
         }
 
-        [DBus(name = "ContextMenu")]
-        public void context_menu(int32 x, int32 y) throws GLib.Error {
+        public void ContextMenu(int32 x, int32 y) throws GLib.Error {
             toggle_window();
         }
 
-        [DBus(name = "Scroll")]
-        public void scroll(int32 delta, string orientation) throws GLib.Error {
+        public void Scroll(int32 delta, string orientation) throws GLib.Error {
             // No scroll action for a notes app
         }
 
         // --- D-Bus Signals ---
-        // These need the annotation to match SNI's signal naming.
+        // 'NewIcon' and 'NewToolTip' are inherited from the interface.
+        // They can be emitted via e.g. this.NewIcon().
 
-        [DBus(name = "NewIcon")]
-        public signal void new_icon_signal();
-
-        [DBus(name = "NewToolTip")]
-        public signal void new_tool_tip_signal();
-
-        public void emit_new_icon() throws GLib.Error {
-            new_icon_signal();
+        public void emit_new_icon() {
+            this.NewIcon();
         }
 
-        public void emit_new_tool_tip() throws GLib.Error {
-            new_tool_tip_signal();
+        public void emit_new_tool_tip() {
+            this.NewToolTip();
         }
 
         // --- Icon generation ---
@@ -131,6 +110,10 @@ namespace Knotes {
         /**
          * Draws a simple note-document icon using Cairo and returns
          * the raw pixel data formatted as an SNI pixmap variant.
+         *
+         * SNI spec format: a(iiibay)
+         *   struct { int32 width, int32 height, int32 rowstride,
+         *            bool has_alpha, array<byte> data }
          */
         private Variant generate_pixmap_variant(int size) {
             int stride = size * 4; // ARGB32
@@ -146,7 +129,7 @@ namespace Knotes {
             cr.paint();
             cr.set_operator(Cairo.Operator.OVER);
 
-            double s = (double)size / 24.0; // scale factor
+            double s = (double)size / 24.0;
 
             // Document body (blue rounded rectangle)
             cr.set_source_rgba(0.38, 0.49, 0.80, 1.0);
@@ -185,9 +168,6 @@ namespace Knotes {
             return build_sni_pixmap_variant(size, stride, pixels);
         }
 
-        /**
-         * Draws a rectangle with rounded corners.
-         */
         private void draw_rounded_rect(Cairo.Context cr,
                 double x, double y, double w, double h, double r) {
             double degrees = GLib.Math.PI / 180.0;
@@ -199,12 +179,6 @@ namespace Knotes {
             cr.close_path();
         }
 
-        /**
-         * Wraps raw pixel data in the Variant format expected by SNI's
-         * IconPixmap property: a(iiibay)
-         *   struct { int32 width, int32 height, int32 rowstride,
-         *            bool has_alpha, array<byte> data }
-         */
         private Variant build_sni_pixmap_variant(int size, int stride, uchar[] pixels) {
             var outer = new VariantBuilder(new VariantType("a(iiibay)"));
             var entry = new VariantBuilder(new VariantType("(iiibay)"));
@@ -256,7 +230,7 @@ namespace Knotes {
                 sni.toggle_window.connect(() => { toggle_window(); });
                 sni.quit_app.connect(() => { quit_app(); });
 
-                registration_id = conn.register_object("/StatusNotifierItem", sni);
+                registration_id = conn.register_object<StatusNotifierItemIface>("/StatusNotifierItem", sni);
                 register_with_watcher();
                 return true;
             } catch (GLib.Error e) {
@@ -268,7 +242,6 @@ namespace Knotes {
         private void register_with_watcher() {
             if (conn == null) return;
 
-            // Watch for the watcher to appear (so we can register)
             watcher_watch_id = Bus.watch_name(
                 BusType.SESSION,
                 "org.kde.StatusNotifierWatcher",
@@ -279,7 +252,6 @@ namespace Knotes {
         }
 
         private void on_watcher_appeared(DBusConnection conn2, string name) {
-            // We already have our own connection; use it to register
             do_register();
         }
 
@@ -292,14 +264,14 @@ namespace Knotes {
 
             try {
                 conn.call_sync(
-                    "org.kde.StatusNotifierWatcher",   // bus name
-                    "/StatusNotifierWatcher",           // object path
-                    "org.kde.StatusNotifierWatcher",    // interface
-                    "RegisterStatusNotifierItem",       // method
-                    new Variant("(s)", conn.get_unique_name()),  // our unique name
-                    null,                               // reply type
+                    "org.kde.StatusNotifierWatcher",
+                    "/StatusNotifierWatcher",
+                    "org.kde.StatusNotifierWatcher",
+                    "RegisterStatusNotifierItem",
+                    new Variant("(s)", conn.get_unique_name()),
+                    null,
                     DBusCallFlags.NONE,
-                    -1,                                 // timeout
+                    -1,
                     null
                 );
                 registered = true;
