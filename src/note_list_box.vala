@@ -153,7 +153,7 @@ namespace Knotes {
 
             var notes = repository.list_all();
             notes.sort((a, b) => {
-                return b.updated_at.compare(a.updated_at);
+                return a.created_at.compare(b.created_at);
             });
 
             foreach (var note in notes) {
