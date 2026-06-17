@@ -5,10 +5,11 @@ namespace Knotes {
      * (KDE's System Tray Protocol, also used by GNOME AppIndicator).
      *
      * This is the modern Wayland-compatible tray icon standard.
-     * No external libraries needed — pure GLib D-Bus.
+     * No external libraries needed — pure GLib D-Bus + Cairo for icon.
      */
     [DBus(name = "org.kde.StatusNotifierItem")]
     public class StatusNotifierItemImpl : GLib.Object {
+        private const int ICON_SIZE = 24;
 
         public signal void toggle_window();
         public signal void quit_app();
@@ -42,11 +43,20 @@ namespace Knotes {
         [DBus(name = "Menu")]
         public string get_menu() throws GLib.Error { return "/com/knotes/app/menu"; }
 
+        /**
+         * Provides the icon as raw ARGB32 pixel data so the tray
+         * implementation never needs to look up a themed icon file.
+         * This is what makes the icon appear reliably on all DEs.
+         */
+        [DBus(name = "IconPixmap")]
+        public Variant get_icon_pixmap() throws GLib.Error {
+            return generate_pixmap_variant(ICON_SIZE);
+        }
+
         [DBus(name = "ToolTip")]
         public Variant get_tool_tip() throws GLib.Error {
             var builder = new VariantBuilder(new VariantType("(sa{sv}ss)"));
             builder.add("s", "icon");
-            // Empty dict
             var dict_builder = new VariantBuilder(new VariantType("a{sv}"));
             builder.add_value(dict_builder.end());
             builder.add("s", "Knotes");
@@ -90,6 +100,96 @@ namespace Knotes {
 
         public void emit_new_tool_tip() throws GLib.Error {
             new_tool_tip_signal();
+        }
+
+        // --- Icon generation ---
+
+        /**
+         * Draws a simple note-document icon using Cairo and returns
+         * the raw pixel data formatted as an SNI pixmap variant.
+         */
+        private Variant generate_pixmap_variant(int size) {
+            int stride = size * 4; // ARGB32
+            uchar[] pixels = new uchar[size * stride];
+
+            var surface = new Cairo.ImageSurface.for_data(
+                pixels, Cairo.Format.ARGB32, size, size, stride
+            );
+            var cr = new Cairo.Context(surface);
+
+            // Transparent background
+            cr.set_operator(Cairo.Operator.CLEAR);
+            cr.paint();
+            cr.set_operator(Cairo.Operator.OVER);
+
+            double s = (double)size / 24.0; // scale factor
+
+            // Document body (blue rounded rectangle)
+            cr.set_source_rgba(0.38, 0.49, 0.80, 1.0);
+            draw_rounded_rect(cr, 2.0 * s, 1.5 * s, 20.0 * s, 21.0 * s, 2.0 * s);
+            cr.fill();
+
+            // Fold corner (lighter triangle)
+            cr.set_source_rgba(0.75, 0.78, 0.90, 1.0);
+            cr.move_to(17.0 * s, 1.5 * s);
+            cr.line_to(22.0 * s, 6.5 * s);
+            cr.line_to(17.0 * s, 6.5 * s);
+            cr.close_path();
+            cr.fill();
+
+            // Fold edge line
+            cr.move_to(17.0 * s, 1.5 * s);
+            cr.line_to(22.0 * s, 6.5 * s);
+            cr.set_source_rgba(0.30, 0.40, 0.70, 0.5);
+            cr.set_line_width(1.0);
+            cr.stroke();
+
+            // Text lines (white)
+            cr.set_source_rgba(1.0, 1.0, 1.0, 1.0);
+            cr.set_line_width(1.8 * s);
+            cr.set_line_cap(Cairo.LineCap.ROUND);
+
+            double[] line_lengths = { 12.0, 10.0, 11.0, 7.0 };
+            for (int i = 0; i < 4; i++) {
+                double y = 8.0 * s + i * 3.5 * s;
+                cr.move_to(5.0 * s, y);
+                cr.line_to((5.0 + line_lengths[i]) * s, y);
+                cr.stroke();
+            }
+
+            return build_sni_pixmap_variant(size, stride, pixels);
+        }
+
+        /**
+         * Draws a rectangle with rounded corners.
+         */
+        private void draw_rounded_rect(Cairo.Context cr,
+                double x, double y, double w, double h, double r) {
+            double degrees = GLib.Math.PI / 180.0;
+            cr.new_sub_path();
+            cr.arc(x + w - r, y + r, r, -90 * degrees, 0 * degrees);
+            cr.arc(x + w - r, y + h - r, r, 0 * degrees, 90 * degrees);
+            cr.arc(x + r, y + h - r, r, 90 * degrees, 180 * degrees);
+            cr.arc(x + r, y + r, r, 180 * degrees, 270 * degrees);
+            cr.close_path();
+        }
+
+        /**
+         * Wraps raw pixel data in the Variant format expected by SNI's
+         * IconPixmap property: a(iiibbay)
+         */
+        private Variant build_sni_pixmap_variant(int size, int stride, uchar[] pixels) {
+            var outer = new VariantBuilder(new VariantType("a(iiibbay)"));
+            var entry = new VariantBuilder(new VariantType("(iiibbay)"));
+            entry.add("i", size);
+            entry.add("i", size);
+            entry.add("i", stride);
+            entry.add("b", true);  // has_alpha
+            entry.add("i", 8);     // bits_per_sample
+            entry.add("i", 4);     // n_channels
+            entry.add("ay", pixels);
+            outer.add_value(entry.end());
+            return outer.end();
         }
     }
 
