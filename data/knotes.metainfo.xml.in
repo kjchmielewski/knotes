@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>com.knotes.app</id>
+  <name>Knotes</name>
+  <summary>A simple note-taking application</summary>
+  <developer id="com.knotes">
+    <name>Krzysztof Chmielewski</name>
+  </developer>
+  <metadata_license>MIT</metadata_license>
+  <project_license>MIT</project_license>
+  <description>
+    <p>A straightforward note-taking application built with Vala and GTK4.</p>
+    <p>Features:</p>
+    <ul>
+      <li>Create, edit, and delete notes</li>
+      <li>Search through your notes</li>
+      <li>Auto-save as you type</li>
+      <li>Simple, clean interface</li>
+    </ul>
+  </description>
+  <launchable type="desktop-id">com.knotes.app.desktop</launchable>
+  <url type="homepage">https://github.com/kjchmielewski/knotes</url>
+  <screenshots>
+    <screenshot type="default">
+      <caption>Main window</caption>
+    </screenshot>
+  </screenshots>
+  <releases>
+    <release version="0.1.0" date="2026-06-17"/>
+  </releases>
+  <content_rating type="oars-1.1"/>
+</component>

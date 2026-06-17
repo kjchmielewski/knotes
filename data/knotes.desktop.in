@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=Knotes
+Name[pl]=Knotes
+Comment=A simple note-taking application
+Comment[pl]=Prosta aplikacja do notatek
+Exec=knotes
+Icon=com.knotes.app
+Terminal=false
+Type=Application
+Categories=Utility;TextEditor;
+StartupNotify=true
+X-GNOME-UsesNotifications=true
