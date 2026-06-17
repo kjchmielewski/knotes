@@ -89,14 +89,31 @@ namespace Knotes {
 
             new_button = new Gtk.Button() {
                 icon_name = "document-new-symbolic",
-                tooltip_text = "New note",
-                margin_end = 8
+                tooltip_text = "New note"
             };
             new_button.add_css_class("flat");
             new_button.add_css_class("circular");
 
+            // Menu button with Quit option
+            var menu = new GLib.Menu();
+            menu.append("Quit", "app.quit");
+
+            var menu_button = new Gtk.MenuButton() {
+                menu_model = menu,
+                icon_name = "open-menu-symbolic",
+                tooltip_text = "Menu"
+            };
+            menu_button.add_css_class("flat");
+            menu_button.add_css_class("circular");
+
+            var header_end_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0) {
+                margin_end = 8
+            };
+            header_end_box.append(new_button);
+            header_end_box.append(menu_button);
+
             header_bar.set_start_widget(title_label);
-            header_bar.set_end_widget(new_button);
+            header_bar.set_end_widget(header_end_box);
 
             search_entry = new Gtk.Entry() {
                 placeholder_text = "Search notes…",

@@ -26,9 +26,23 @@ namespace Knotes {
             base.startup();
             repository = new NoteRepository();
 
+            setup_quit_action();
+
             if (tray_enabled) {
                 setup_tray();
             }
+        }
+
+        private void setup_quit_action() {
+            var quit_action = new SimpleAction("quit", null);
+            quit_action.activate.connect(() => {
+                if (main_window != null) {
+                    main_window.force_close();
+                }
+                quit();
+            });
+            add_action(quit_action);
+            set_accels_for_action("app.quit", { "<Control>q", null });
         }
 
         private void setup_tray() {
@@ -43,10 +57,7 @@ namespace Knotes {
                 }
             });
             tray_manager.quit_app.connect(() => {
-                if (main_window != null) {
-                    main_window.force_close();
-                }
-                quit();
+                activate_action("quit", null);
             });
 
             // Silently fail if no tray is available (no DE support)
