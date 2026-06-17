@@ -182,17 +182,19 @@ namespace Knotes {
 
         private void on_search_changed() {
             var query = search_entry.text.down();
-            unowned Gtk.Widget? child = list_box.get_first_child();
-            while (child != null) {
-                var row = child as NoteRow;
-                if (row != null) {
-                    var note = notes_map[row.note_id];
+            int index = 0;
+            while (true) {
+                var list_row = list_box.get_row_at_index(index);
+                if (list_row == null) break;
+                var note_row = list_row.get_child() as NoteRow;
+                if (note_row != null) {
+                    var note = notes_map[note_row.note_id];
                     bool visible = query.length == 0 ||
                         note.title.down().contains(query) ||
                         note.content.down().contains(query);
-                    row.visible = visible;
+                    note_row.visible = visible;
                 }
-                child = child.get_next_sibling();
+                index++;
             }
         }
 
@@ -206,28 +208,32 @@ namespace Knotes {
 
         public void update_note(Note note) {
             notes_map[note.id] = note;
-            unowned Gtk.Widget? child = list_box.get_first_child();
-            while (child != null) {
-                var row = child as NoteRow;
-                if (row != null && row.note_id == note.id) {
-                    row.update(note);
-                    return;
-                }
-                child = child.get_next_sibling();
+            var note_row = find_note_row(note.id);
+            if (note_row != null) {
+                note_row.update(note);
             }
         }
 
         public void remove_note(string id) {
             notes_map.unset(id);
-            unowned Gtk.Widget? child = list_box.get_first_child();
-            while (child != null) {
-                var row = child as NoteRow;
-                if (row != null && row.note_id == id) {
-                    list_box.remove(child);
-                    return;
-                }
-                child = child.get_next_sibling();
+            var note_row = find_note_row(id);
+            if (note_row != null) {
+                list_box.remove(note_row);
             }
+        }
+
+        private NoteRow? find_note_row(string id) {
+            int index = 0;
+            while (true) {
+                var list_row = list_box.get_row_at_index(index);
+                if (list_row == null) break;
+                var note_row = list_row.get_child() as NoteRow;
+                if (note_row != null && note_row.note_id == id) {
+                    return note_row;
+                }
+                index++;
+            }
+            return null;
         }
 
         private void on_external_note_updated(string id) {
@@ -236,14 +242,9 @@ namespace Knotes {
 
             if (notes_map.has_key(id)) {
                 notes_map[id] = note;
-                unowned Gtk.Widget? child = list_box.get_first_child();
-                while (child != null) {
-                    var row = child as NoteRow;
-                    if (row != null && row.note_id == id) {
-                        row.update(note);
-                        return;
-                    }
-                    child = child.get_next_sibling();
+                var note_row = find_note_row(id);
+                if (note_row != null) {
+                    note_row.update(note);
                 }
             } else {
                 notes_map[id] = note;
