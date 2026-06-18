@@ -233,6 +233,7 @@ namespace Knotes {
                         var id = current_note_id;
                         current_note_id = null;
                         repository.delete_note(id);
+                        note_list.remove_note(id);
                         editor_stack.set_visible_child_name("empty");
                     }
                 } catch (GLib.Error e) {
