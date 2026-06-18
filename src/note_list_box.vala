@@ -222,10 +222,20 @@ namespace Knotes {
 
         public void remove_note(string id) {
             notes_map.unset(id);
-            var note_row = rows_map[id];
-            if (note_row != null) {
-                rows_map.unset(id);
-                list_box.remove(note_row);
+            rows_map.unset(id);
+            // Find the GtkListBoxRow wrapper whose child matches our
+            // note ID and remove it — avoid parentage issues with
+            // GTK's internal wrapping.
+            int index = 0;
+            while (true) {
+                var wrapper = list_box.get_row_at_index(index);
+                if (wrapper == null) break;
+                var child = wrapper.get_child() as NoteRow;
+                if (child != null && child.note_id == id) {
+                    list_box.remove(wrapper);
+                    return;
+                }
+                index++;
             }
         }
 
