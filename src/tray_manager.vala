@@ -68,10 +68,16 @@ namespace Knotes {
 
         public Variant ToolTip {
             owned get {
-                var builder = new VariantBuilder(new VariantType("(sa{sv}ss)"));
-                builder.add("s", "icon");
-                var dict_builder = new VariantBuilder(new VariantType("a{sv}"));
-                builder.add_value(dict_builder.end());
+                var builder = new VariantBuilder(new VariantType("(sa(iiay)ss)"));
+                builder.add("s", "com.knotes.app");
+
+                // SNI tooltip pixmaps use the original spec format:
+                // a(iiay) = array of (width, height, ARGB32 bytes).
+                // The icon name above is enough for the tooltip, so keep
+                // the pixmap list empty instead of duplicating IconPixmap.
+                var pixmaps = new VariantBuilder(new VariantType("a(iiay)"));
+                builder.add_value(pixmaps.end());
+
                 builder.add("s", "Knotes");
                 builder.add("s", "A simple note-taking app");
                 return builder.end();
