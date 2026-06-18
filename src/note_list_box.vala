@@ -2,24 +2,23 @@ using Gee;
 
 namespace Knotes {
 
-    public class NoteRow : Gtk.Box {
+    public class NoteRow : Gtk.ListBoxRow {
         public string note_id { get; construct; }
-        public signal void activated();
+        private Gtk.Box content_box;
 
         public NoteRow(Note note) {
-            Object(
-                note_id: note.id,
-                orientation: Gtk.Orientation.VERTICAL,
-                spacing: 2,
-                margin_start: 8,
-                margin_end: 8,
-                margin_top: 6,
-                margin_bottom: 6
-            );
+            Object(note_id: note.id);
             build_ui(note);
         }
 
         private void build_ui(Note note) {
+            content_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 2) {
+                margin_start = 8,
+                margin_end = 8,
+                margin_top = 6,
+                margin_bottom = 6
+            };
+
             var title_label = new Gtk.Label(note.title) {
                 halign = Gtk.Align.START,
                 use_markup = true,
@@ -36,21 +35,18 @@ namespace Knotes {
             };
             preview_label.add_css_class("caption");
 
-            append(title_label);
-            append(preview_label);
-
-            var gesture = new Gtk.GestureClick();
-            gesture.pressed.connect(() => { activated(); });
-            add_controller(gesture);
+            content_box.append(title_label);
+            content_box.append(preview_label);
+            set_child(content_box);
         }
 
         public void update(Note note) {
-            var children = get_first_child();
-            if (children is Gtk.Label) {
-                ((Gtk.Label) children).label = note.title;
-                var next = children.get_next_sibling();
-                if (next is Gtk.Label) {
-                    ((Gtk.Label) next).label = note.preview(60);
+            var title = content_box.get_first_child();
+            if (title is Gtk.Label) {
+                ((Gtk.Label) title).label = note.title;
+                var preview = title.get_next_sibling();
+                if (preview is Gtk.Label) {
+                    ((Gtk.Label) preview).label = note.preview(60);
                 }
             }
         }
@@ -63,7 +59,6 @@ namespace Knotes {
         private NoteRepository repository;
         private HashMap<string, Note> notes_map;
         private HashMap<string, NoteRow> rows_map;
-        private HashMap<string, Gtk.ListBoxRow> row_wrappers_map;
         private string? selected_id = null;
 
         public signal void note_selected(string? id);
@@ -76,7 +71,6 @@ namespace Knotes {
             this.repository = repository;
             this.notes_map = new HashMap<string, Note>();
             this.rows_map = new HashMap<string, NoteRow>();
-            this.row_wrappers_map = new HashMap<string, Gtk.ListBoxRow>();
             build_ui();
             load_notes();
             connect_signals();
@@ -154,7 +148,6 @@ namespace Knotes {
             list_box.remove_all();
             notes_map.clear();
             rows_map.clear();
-            row_wrappers_map.clear();
             selected_id = null;
 
             var notes = repository.list_all();
@@ -170,17 +163,8 @@ namespace Knotes {
 
         private void add_note_row(Note note) {
             var row = new NoteRow(note);
-            var wrapper = new Gtk.ListBoxRow();
-            wrapper.set_child(row);
-
-            row.activated.connect(() => {
-                selected_id = note.id;
-                note_selected(note.id);
-            });
-
             rows_map[note.id] = row;
-            row_wrappers_map[note.id] = wrapper;
-            list_box.append(wrapper);
+            list_box.append(row);
         }
 
         private void on_new_note() {
@@ -200,15 +184,12 @@ namespace Knotes {
                 bool visible = query.length == 0 ||
                     note.title.down().contains(query) ||
                     note.content.down().contains(query);
-                var wrapper = row_wrappers_map[entry.key];
-                if (wrapper != null) {
-                    wrapper.visible = visible;
-                }
+                entry.value.visible = visible;
             }
         }
 
         private void on_row_activated(Gtk.ListBoxRow row) {
-            var note_row = row.get_child() as NoteRow;
+            var note_row = row as NoteRow;
             if (note_row != null) {
                 selected_id = note_row.note_id;
                 note_selected(note_row.note_id);
@@ -232,14 +213,13 @@ namespace Knotes {
         }
 
         public void remove_note(string id) {
-            var wrapper = row_wrappers_map[id];
+            var row = rows_map[id];
 
             notes_map.unset(id);
             rows_map.unset(id);
-            row_wrappers_map.unset(id);
 
-            if (wrapper != null) {
-                list_box.remove(wrapper);
+            if (row != null) {
+                list_box.remove(row);
             }
         }
 
