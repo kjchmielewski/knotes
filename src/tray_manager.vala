@@ -21,7 +21,9 @@ namespace Knotes {
         public abstract string[] IconThemePath { owned get; }
         public abstract bool ItemIsMenu { get; }
         public abstract string Menu { owned get; }
+        [DBus(signature = "a(iiibay)")]
         public abstract Variant IconPixmap { owned get; }
+        [DBus(signature = "(sa(iiay)ss)")]
         public abstract Variant ToolTip { owned get; }
 
         // --- Methods ---
