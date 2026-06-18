@@ -8,11 +8,19 @@ sources = files(
     'tray_manager.vala'
 )
 
+resources = gnome.compile_resources(
+    'knotes-resources',
+    '../data/knotes.gresource.xml',
+    source_dir: '../data',
+    c_name: 'knotes'
+)
+
 dependencies = [
     dependency('glib-2.0'),
     dependency('gio-2.0'),
     dependency('gtk4'),
     dependency('cairo'),
+    dependency('gdk-pixbuf-2.0'),
     dependency('json-glib-1.0'),
     dependency('gee-0.8')
 ]
@@ -20,6 +28,7 @@ dependencies = [
 executable(
     meson.project_name(),
     sources,
+    resources,
     dependencies: dependencies,
     install: true
 )

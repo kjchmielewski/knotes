@@ -38,10 +38,13 @@ namespace Knotes {
     /**
      * Implementation of the StatusNotifierItem D-Bus interface.
      *
-     * Generates the tray icon using Cairo (no icon theme dependency).
+     * Exposes the app icon as an SNI IconPixmap so trays do not need to
+     * resolve the themed icon name. The pixmap is rendered from the bundled
+     * SVG resource, with a Cairo-generated fallback if loading fails.
      */
     public class StatusNotifierItemImpl : GLib.Object, StatusNotifierItemIface {
         private const int ICON_SIZE = 24;
+        private const string ICON_RESOURCE_PATH = "/com/knotes/app/icons/com.knotes.app.svg";
 
         // Internal signals (not D-Bus)
         public signal void toggle_window();
@@ -108,14 +111,30 @@ namespace Knotes {
         // --- Icon generation ---
 
         /**
-         * Draws a simple note-document icon using Cairo and returns
-         * the raw pixel data formatted as an SNI pixmap variant.
+         * Returns the app icon's raw pixel data formatted as an SNI pixmap
+         * variant. The preferred source is the bundled SVG resource; the
+         * drawn Cairo icon remains as a defensive fallback.
          *
          * SNI spec format: a(iiibay)
          *   struct { int32 width, int32 height, int32 rowstride,
          *            bool has_alpha, array<byte> data }
          */
         private Variant generate_pixmap_variant(int size) {
+            try {
+                var pixbuf = new Gdk.Pixbuf.from_resource_at_scale(
+                    ICON_RESOURCE_PATH,
+                    size,
+                    size,
+                    true
+                );
+                return pixbuf_to_sni_pixmap_variant(pixbuf);
+            } catch (GLib.Error e) {
+                warning("Failed to load tray icon resource: %s", e.message);
+                return generate_fallback_pixmap_variant(size);
+            }
+        }
+
+        private Variant generate_fallback_pixmap_variant(int size) {
             int stride = size * 4; // ARGB32
             uchar[] pixels = new uchar[size * stride];
 
@@ -165,7 +184,7 @@ namespace Knotes {
             }
 
             surface.flush();
-            return build_sni_pixmap_variant(size, stride, pixels);
+            return build_sni_pixmap_variant(size, size, stride, pixels);
         }
 
         private void draw_rounded_rect(Cairo.Context cr,
@@ -179,11 +198,49 @@ namespace Knotes {
             cr.close_path();
         }
 
-        private Variant build_sni_pixmap_variant(int size, int stride, uchar[] pixels) {
+        private Variant pixbuf_to_sni_pixmap_variant(Gdk.Pixbuf pixbuf) {
+            int width = pixbuf.get_width();
+            int height = pixbuf.get_height();
+            int source_stride = pixbuf.get_rowstride();
+            int channels = pixbuf.get_n_channels();
+            bool has_alpha = pixbuf.get_has_alpha();
+            int stride = width * 4;
+            unowned uchar[] source = pixbuf.get_pixels();
+            uchar[] pixels = new uchar[height * stride];
+
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    int source_index = y * source_stride + x * channels;
+                    int target_index = y * stride + x * 4;
+
+                    uchar r = source[source_index];
+                    uchar g = source[source_index + 1];
+                    uchar b = source[source_index + 2];
+                    uchar a = has_alpha ? source[source_index + 3] : 255;
+
+                    if (a != 255) {
+                        r = (uchar)(((int) r * (int) a + 127) / 255);
+                        g = (uchar)(((int) g * (int) a + 127) / 255);
+                        b = (uchar)(((int) b * (int) a + 127) / 255);
+                    }
+
+                    // Match Cairo.Format.ARGB32 memory layout on little-endian
+                    // Linux, which is what the existing SNI pixmap path used.
+                    pixels[target_index] = b;
+                    pixels[target_index + 1] = g;
+                    pixels[target_index + 2] = r;
+                    pixels[target_index + 3] = a;
+                }
+            }
+
+            return build_sni_pixmap_variant(width, height, stride, pixels);
+        }
+
+        private Variant build_sni_pixmap_variant(int width, int height, int stride, uchar[] pixels) {
             var outer = new VariantBuilder(new VariantType("a(iiibay)"));
             var entry = new VariantBuilder(new VariantType("(iiibay)"));
-            entry.add("i", size);
-            entry.add("i", size);
+            entry.add("i", width);
+            entry.add("i", height);
             entry.add("i", stride);
             entry.add("b", true);  // has_alpha
 
