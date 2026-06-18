@@ -5,21 +5,24 @@ namespace Knotes {
         private TrayManager? tray_manager = null;
         private MainWindow? main_window = null;
         private bool tray_enabled;
+        private bool start_minimized;
 
-        public Application(bool tray_enabled) {
+        public Application(bool tray_enabled, bool start_minimized) {
             Object(
                 application_id: "com.knotes.app",
                 flags: ApplicationFlags.FLAGS_NONE
             );
-            this.tray_enabled = tray_enabled;
+            this.tray_enabled = tray_enabled || start_minimized;
+            this.start_minimized = start_minimized;
         }
 
         protected override void activate() {
-            if (main_window == null) {
-                main_window = new MainWindow(this, repository, tray_enabled);
+            if (start_minimized) {
+                start_minimized = false;
+                return;
             }
-            main_window.present();
-            main_window.set_visible(true);
+
+            show_main_window();
         }
 
         protected override void startup() {
@@ -29,8 +32,22 @@ namespace Knotes {
             setup_quit_action();
 
             if (tray_enabled) {
-                setup_tray();
+                tray_enabled = setup_tray();
             }
+
+            if (start_minimized && tray_enabled) {
+                hold();
+            } else if (start_minimized) {
+                start_minimized = false;
+            }
+        }
+
+        private void show_main_window() {
+            if (main_window == null) {
+                main_window = new MainWindow(this, repository, tray_enabled);
+            }
+            main_window.present();
+            main_window.set_visible(true);
         }
 
         private void setup_quit_action() {
@@ -45,15 +62,13 @@ namespace Knotes {
             set_accels_for_action("app.quit", { "<Control>q", null });
         }
 
-        private void setup_tray() {
+        private bool setup_tray() {
             tray_manager = new TrayManager();
             tray_manager.toggle_window.connect(() => {
-                if (main_window == null) return;
-                if (main_window.visible) {
-                    main_window.hide();
+                if (main_window == null || !main_window.visible) {
+                    show_main_window();
                 } else {
-                    main_window.present();
-                    main_window.set_visible(true);
+                    main_window.hide();
                 }
             });
             tray_manager.quit_app.connect(() => {
@@ -61,7 +76,7 @@ namespace Knotes {
             });
 
             // Silently fail if no tray is available (no DE support)
-            tray_manager.try_register();
+            return tray_manager.try_register();
         }
     }
 }

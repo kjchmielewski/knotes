@@ -20,8 +20,8 @@ namespace Knotes {
         public abstract string IconName { owned get; }
         public abstract string[] IconThemePath { owned get; }
         public abstract bool ItemIsMenu { get; }
-        public abstract string Menu { owned get; }
-        [DBus(signature = "a(iiibay)")]
+        public abstract ObjectPath Menu { owned get; }
+        [DBus(signature = "a(iiay)")]
         public abstract Variant IconPixmap { owned get; }
         [DBus(signature = "(sa(iiay)ss)")]
         public abstract Variant ToolTip { owned get; }
@@ -35,6 +35,221 @@ namespace Knotes {
         // --- Signals ---
         public signal void NewIcon();
         public signal void NewToolTip();
+    }
+
+    /**
+     * Minimal D-BusMenu interface used by StatusNotifierItem hosts to render
+     * the tray icon context menu.
+     */
+    [DBus(name = "com.canonical.dbusmenu")]
+    public interface TrayMenuIface : GLib.Object {
+        public abstract string Status { owned get; }
+        public abstract uint32 Version { get; }
+        public abstract string TextDirection { owned get; }
+        public abstract string[] IconThemePath { owned get; }
+
+        public abstract void GetLayout(
+            int32 parentId,
+            int32 recursionDepth,
+            string[] propertyNames,
+            out uint32 revision,
+            [DBus(signature = "(ia{sv}av)")] out Variant layout
+        ) throws GLib.Error;
+
+        public abstract void Event(
+            int32 id,
+            string eventId,
+            Variant data,
+            uint32 timestamp
+        ) throws GLib.Error;
+
+        public abstract int32[] EventGroup(
+            [DBus(signature = "a(isvu)")] Variant events
+        ) throws GLib.Error;
+
+        public abstract bool AboutToShow(int32 id) throws GLib.Error;
+        public abstract Variant GetProperty(int32 id, string name) throws GLib.Error;
+
+        public abstract void AboutToShowGroup(
+            int32[] ids,
+            out int32[] updatesNeeded,
+            out int32[] idErrors
+        ) throws GLib.Error;
+
+        [DBus(signature = "a(ia{sv})")]
+        public abstract Variant GetGroupProperties(
+            int32[] ids,
+            string[] propertyNames
+        ) throws GLib.Error;
+
+        public signal void LayoutUpdated(uint32 revision, int32 parent);
+    }
+
+    public class TrayMenuImpl : GLib.Object, TrayMenuIface {
+        private const int32 ROOT_ID = 0;
+        private const int32 QUIT_ITEM_ID = 1;
+        private const uint32 REVISION = 1;
+
+        public signal void quit_app();
+
+        public string Status { owned get { return "normal"; } }
+        public uint32 Version { get { return 3; } }
+        public string TextDirection { owned get { return "ltr"; } }
+        public string[] IconThemePath { owned get { return {}; } }
+
+        public void GetLayout(
+            int32 parentId,
+            int32 recursionDepth,
+            string[] propertyNames,
+            out uint32 revision,
+            out Variant layout
+        ) throws GLib.Error {
+            revision = REVISION;
+            layout = build_root_layout();
+        }
+
+        public void Event(
+            int32 id,
+            string eventId,
+            Variant data,
+            uint32 timestamp
+        ) throws GLib.Error {
+            handle_menu_event(id, eventId);
+        }
+
+        public int32[] EventGroup(Variant events) throws GLib.Error {
+            VariantIter iter = events.iterator();
+            int32 id;
+            string eventId;
+            Variant data;
+            uint32 timestamp;
+
+            while (iter.next("(isvu)", out id, out eventId, out data, out timestamp)) {
+                handle_menu_event(id, eventId);
+            }
+
+            return {};
+        }
+
+        public bool AboutToShow(int32 id) throws GLib.Error {
+            return false;
+        }
+
+        public Variant GetProperty(int32 id, string name) throws GLib.Error {
+            if (id == ROOT_ID) {
+                return get_root_property(name);
+            }
+
+            if (id == QUIT_ITEM_ID) {
+                return get_quit_item_property(name);
+            }
+
+            return new Variant.string("");
+        }
+
+        public void AboutToShowGroup(
+            int32[] ids,
+            out int32[] updatesNeeded,
+            out int32[] idErrors
+        ) throws GLib.Error {
+            updatesNeeded = {};
+            idErrors = {};
+        }
+
+        public Variant GetGroupProperties(
+            int32[] ids,
+            string[] propertyNames
+        ) throws GLib.Error {
+            var items = new VariantBuilder(new VariantType("a(ia{sv})"));
+
+            if (ids.length == 0) {
+                items.add_value(build_item_properties(ROOT_ID, build_root_properties()));
+                items.add_value(build_item_properties(QUIT_ITEM_ID, build_quit_item_properties()));
+                return items.end();
+            }
+
+            foreach (int32 id in ids) {
+                if (id == ROOT_ID) {
+                    items.add_value(build_item_properties(ROOT_ID, build_root_properties()));
+                } else if (id == QUIT_ITEM_ID) {
+                    items.add_value(build_item_properties(QUIT_ITEM_ID, build_quit_item_properties()));
+                }
+            }
+
+            return items.end();
+        }
+
+        private void handle_menu_event(int32 id, string eventId) {
+            if (id == QUIT_ITEM_ID && eventId == "clicked") {
+                quit_app();
+            }
+        }
+
+        private Variant build_root_layout() {
+            var children = new VariantBuilder(new VariantType("av"));
+            children.add_value(new Variant.variant(build_quit_item_layout()));
+            return build_menu_node(ROOT_ID, build_root_properties(), children.end());
+        }
+
+        private Variant build_quit_item_layout() {
+            var children = new VariantBuilder(new VariantType("av"));
+            return build_menu_node(QUIT_ITEM_ID, build_quit_item_properties(), children.end());
+        }
+
+        private Variant build_menu_node(int32 id, Variant properties, Variant children) {
+            var node = new VariantBuilder(new VariantType("(ia{sv}av)"));
+            node.add("i", id);
+            node.add_value(properties);
+            node.add_value(children);
+            return node.end();
+        }
+
+        private Variant build_root_properties() {
+            var properties = new VariantBuilder(new VariantType("a{sv}"));
+            properties.add("{sv}", "children-display", get_root_property("children-display"));
+            properties.add("{sv}", "visible", get_root_property("visible"));
+            properties.add("{sv}", "enabled", get_root_property("enabled"));
+            return properties.end();
+        }
+
+        private Variant build_quit_item_properties() {
+            var properties = new VariantBuilder(new VariantType("a{sv}"));
+            properties.add("{sv}", "label", get_quit_item_property("label"));
+            properties.add("{sv}", "visible", get_quit_item_property("visible"));
+            properties.add("{sv}", "enabled", get_quit_item_property("enabled"));
+            return properties.end();
+        }
+
+        private Variant get_root_property(string name) {
+            switch (name) {
+                case "children-display":
+                    return new Variant.string("submenu");
+                case "visible":
+                case "enabled":
+                    return new Variant.boolean(true);
+                default:
+                    return new Variant.string("");
+            }
+        }
+
+        private Variant get_quit_item_property(string name) {
+            switch (name) {
+                case "label":
+                    return new Variant.string("Quit");
+                case "visible":
+                case "enabled":
+                    return new Variant.boolean(true);
+                default:
+                    return new Variant.string("");
+            }
+        }
+
+        private Variant build_item_properties(int32 id, Variant properties) {
+            var item = new VariantBuilder(new VariantType("(ia{sv})"));
+            item.add("i", id);
+            item.add_value(properties);
+            return item.end();
+        }
     }
 
     /**
@@ -61,9 +276,13 @@ namespace Knotes {
         public string Status { owned get { return "Active"; } }
         public int32 WindowId { get { return 0; } }
         public string IconName { owned get { return "com.knotes.app"; } }
-        public string[] IconThemePath { owned get { return {}; } }
+        public string[] IconThemePath {
+            owned get {
+                return { Path.build_filename(Environment.get_user_data_dir(), "icons") };
+            }
+        }
         public bool ItemIsMenu { get { return false; } }
-        public string Menu { owned get { return "/com/knotes/app/menu"; } }
+        public ObjectPath Menu { owned get { return new ObjectPath("/com/knotes/app/menu"); } }
 
         public Variant IconPixmap {
             owned get {
@@ -104,7 +323,8 @@ namespace Knotes {
         }
 
         public void ContextMenu(int32 x, int32 y) throws GLib.Error {
-            toggle_window();
+            // Context menus are exposed through the D-BusMenu object at Menu.
+            // Do not toggle the window on right-click.
         }
 
         public void Scroll(int32 delta, string orientation) throws GLib.Error {
@@ -129,19 +349,18 @@ namespace Knotes {
          * Returns an empty SNI pixmap list so hosts prefer IconName.
          */
         private Variant empty_icon_pixmap_variant() {
-            var builder = new VariantBuilder(new VariantType("a(iiibay)"));
+            var builder = new VariantBuilder(new VariantType("a(iiay)"));
             return builder.end();
         }
 
         /**
-         * Returns the app icon's raw pixel data formatted as an SNI pixmap
-         * variant. This is intentionally disabled by default and should only
-         * be enabled as a compatibility fallback for hosts that do not resolve
-         * the installed IconName correctly.
+         * Returns the app icon's raw pixel data formatted as a standard SNI
+         * pixmap variant. This is intentionally disabled by default and should
+         * only be enabled as a compatibility fallback for hosts that do not
+         * resolve the installed IconName correctly.
          *
-         * SNI spec format: a(iiibay)
-         *   struct { int32 width, int32 height, int32 rowstride,
-         *            bool has_alpha, array<byte> data }
+         * SNI spec format: a(iiay)
+         *   struct { int32 width, int32 height, array<byte> ARGB32 data }
          */
         private Variant generate_pixmap_variant(int size) {
             try {
@@ -208,7 +427,7 @@ namespace Knotes {
             }
 
             surface.flush();
-            return build_sni_pixmap_variant(size, size, stride, pixels);
+            return build_sni_pixmap_variant(size, size, pixels);
         }
 
         private void draw_rounded_rect(Cairo.Context cr,
@@ -257,16 +476,14 @@ namespace Knotes {
                 }
             }
 
-            return build_sni_pixmap_variant(width, height, stride, pixels);
+            return build_sni_pixmap_variant(width, height, pixels);
         }
 
-        private Variant build_sni_pixmap_variant(int width, int height, int stride, uchar[] pixels) {
-            var outer = new VariantBuilder(new VariantType("a(iiibay)"));
-            var entry = new VariantBuilder(new VariantType("(iiibay)"));
+        private Variant build_sni_pixmap_variant(int width, int height, uchar[] pixels) {
+            var outer = new VariantBuilder(new VariantType("a(iiay)"));
+            var entry = new VariantBuilder(new VariantType("(iiay)"));
             entry.add("i", width);
             entry.add("i", height);
-            entry.add("i", stride);
-            entry.add("b", true);  // has_alpha
 
             // Build the byte array variant via from_bytes to avoid Vala's
             // variadic limitation with the "ay" format specifier in
@@ -291,8 +508,10 @@ namespace Knotes {
     public class TrayManager : GLib.Object {
         private StatusNotifierItemImpl sni;
         private DBusConnection? conn = null;
+        private TrayMenuImpl menu;
         private uint watcher_watch_id = 0;
         private uint registration_id = 0;
+        private uint menu_registration_id = 0;
         private bool registered = false;
 
         public signal void toggle_window();
@@ -300,11 +519,21 @@ namespace Knotes {
 
         ~TrayManager() {
             disconnect_watcher();
-            if (conn != null && registration_id > 0) {
-                try {
-                    conn.unregister_object(registration_id);
-                } catch (Error e) {
-                    // Ignore errors during cleanup
+            if (conn != null) {
+                if (registration_id > 0) {
+                    try {
+                        conn.unregister_object(registration_id);
+                    } catch (Error e) {
+                        // Ignore errors during cleanup
+                    }
+                }
+
+                if (menu_registration_id > 0) {
+                    try {
+                        conn.unregister_object(menu_registration_id);
+                    } catch (Error e) {
+                        // Ignore errors during cleanup
+                    }
                 }
             }
         }
@@ -321,6 +550,10 @@ namespace Knotes {
                 sni.toggle_window.connect(() => { toggle_window(); });
                 sni.quit_app.connect(() => { quit_app(); });
 
+                menu = new TrayMenuImpl();
+                menu.quit_app.connect(() => { quit_app(); });
+
+                menu_registration_id = conn.register_object<TrayMenuIface>("/com/knotes/app/menu", menu);
                 registration_id = conn.register_object<StatusNotifierItemIface>("/StatusNotifierItem", sni);
                 register_with_watcher();
                 return true;

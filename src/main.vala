@@ -1,13 +1,16 @@
 namespace Knotes {
 
     public static int main(string[] args) {
-        // Check for --tray flag and strip it from args
-        // so GTK doesn't complain about unknown options
+        // Check for app-specific flags and strip them from args
+        // so GTK doesn't complain about unknown options.
         bool tray_enabled = false;
+        bool start_minimized = false;
         var filtered_args = new List<string>();
         foreach (var arg in args) {
             if (arg == "--tray") {
                 tray_enabled = true;
+            } else if (arg == "--start-minimized") {
+                start_minimized = true;
             } else {
                 filtered_args.append(arg);
             }
@@ -21,7 +24,7 @@ namespace Knotes {
             i++;
         }
 
-        var app = new Application(tray_enabled);
+        var app = new Application(tray_enabled, start_minimized);
         return app.run(clean_args);
     }
 }

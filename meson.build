@@ -14,3 +14,7 @@ version = meson.project_version()
 
 subdir('src')
 subdir('data')
+
+gnome.post_install(
+    gtk_update_icon_cache: true
+)
