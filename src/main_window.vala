@@ -198,8 +198,18 @@ namespace Knotes {
             var note = repository.load_note(current_note_id);
             if (note == null) return;
 
-            note.title = title_entry.text;
-            note.content = content_view.buffer.text;
+            var new_title = title_entry.text;
+            var new_content = content_view.buffer.text;
+
+            // Skip save if nothing actually changed — avoids bumping
+            // updated_at on mere note selection (which triggers changed
+            // signals when show_note sets the entry text).
+            if (note.title == new_title && note.content == new_content) {
+                return;
+            }
+
+            note.title = new_title;
+            note.content = new_content;
             note.updated_at = new DateTime.now_utc();
             repository.save_note(note);
             note_list.update_note(note);
