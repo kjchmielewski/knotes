@@ -63,6 +63,7 @@ namespace Knotes {
         private NoteRepository repository;
         private HashMap<string, Note> notes_map;
         private HashMap<string, NoteRow> rows_map;
+        private HashMap<string, Gtk.ListBoxRow> row_wrappers_map;
         private string? selected_id = null;
 
         public signal void note_selected(string? id);
@@ -75,6 +76,7 @@ namespace Knotes {
             this.repository = repository;
             this.notes_map = new HashMap<string, Note>();
             this.rows_map = new HashMap<string, NoteRow>();
+            this.row_wrappers_map = new HashMap<string, Gtk.ListBoxRow>();
             build_ui();
             load_notes();
             connect_signals();
@@ -152,6 +154,7 @@ namespace Knotes {
             list_box.remove_all();
             notes_map.clear();
             rows_map.clear();
+            row_wrappers_map.clear();
             selected_id = null;
 
             var notes = repository.list_all();
@@ -167,12 +170,17 @@ namespace Knotes {
 
         private void add_note_row(Note note) {
             var row = new NoteRow(note);
+            var wrapper = new Gtk.ListBoxRow();
+            wrapper.set_child(row);
+
             row.activated.connect(() => {
                 selected_id = note.id;
                 note_selected(note.id);
             });
+
             rows_map[note.id] = row;
-            list_box.append(row);
+            row_wrappers_map[note.id] = wrapper;
+            list_box.append(wrapper);
         }
 
         private void on_new_note() {
@@ -192,7 +200,10 @@ namespace Knotes {
                 bool visible = query.length == 0 ||
                     note.title.down().contains(query) ||
                     note.content.down().contains(query);
-                entry.value.visible = visible;
+                var wrapper = row_wrappers_map[entry.key];
+                if (wrapper != null) {
+                    wrapper.visible = visible;
+                }
             }
         }
 
@@ -221,21 +232,14 @@ namespace Knotes {
         }
 
         public void remove_note(string id) {
+            var wrapper = row_wrappers_map[id];
+
             notes_map.unset(id);
             rows_map.unset(id);
-            // Find the GtkListBoxRow wrapper whose child matches our
-            // note ID and remove it — avoid parentage issues with
-            // GTK's internal wrapping.
-            int index = 0;
-            while (true) {
-                var wrapper = list_box.get_row_at_index(index);
-                if (wrapper == null) break;
-                var child = wrapper.get_child() as NoteRow;
-                if (child != null && child.note_id == id) {
-                    list_box.remove(wrapper);
-                    return;
-                }
-                index++;
+            row_wrappers_map.unset(id);
+
+            if (wrapper != null) {
+                list_box.remove(wrapper);
             }
         }
 
