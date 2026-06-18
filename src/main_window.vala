@@ -243,10 +243,7 @@ namespace Knotes {
         }
 
         private void on_new_note() {
-            var note = new Note.with_new_content("Untitled", "");
-            repository.save_note(note);
-            note_list.update_note(note);
-            note_list.note_selected(note.id);
+            note_list.create_note();
         }
     }
 }

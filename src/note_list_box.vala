@@ -62,6 +62,7 @@ namespace Knotes {
         private Gtk.Button new_button;
         private NoteRepository repository;
         private HashMap<string, Note> notes_map;
+        private HashMap<string, NoteRow> rows_map;
         private string? selected_id = null;
 
         public signal void note_selected(string? id);
@@ -73,6 +74,7 @@ namespace Knotes {
             );
             this.repository = repository;
             this.notes_map = new HashMap<string, Note>();
+            this.rows_map = new HashMap<string, NoteRow>();
             build_ui();
             load_notes();
             connect_signals();
@@ -149,6 +151,7 @@ namespace Knotes {
         private void load_notes() {
             list_box.remove_all();
             notes_map.clear();
+            rows_map.clear();
             selected_id = null;
 
             var notes = repository.list_all();
@@ -168,6 +171,7 @@ namespace Knotes {
                 selected_id = note.id;
                 note_selected(note.id);
             });
+            rows_map[note.id] = row;
             list_box.append(row);
         }
 
@@ -182,19 +186,13 @@ namespace Knotes {
 
         private void on_search_changed() {
             var query = search_entry.text.down();
-            int index = 0;
-            while (true) {
-                var list_row = list_box.get_row_at_index(index);
-                if (list_row == null) break;
-                var note_row = list_row.get_child() as NoteRow;
-                if (note_row != null) {
-                    var note = notes_map[note_row.note_id];
-                    bool visible = query.length == 0 ||
-                        note.title.down().contains(query) ||
-                        note.content.down().contains(query);
-                    note_row.visible = visible;
-                }
-                index++;
+            foreach (var entry in rows_map.entries) {
+                var note = notes_map[entry.key];
+                if (note == null) continue;
+                bool visible = query.length == 0 ||
+                    note.title.down().contains(query) ||
+                    note.content.down().contains(query);
+                entry.value.visible = visible;
             }
         }
 
@@ -206,9 +204,17 @@ namespace Knotes {
             }
         }
 
+        /**
+         * Public helper called by both the sidebar's and the editor's
+         * "New note" button so that a visual row is always created.
+         */
+        public void create_note() {
+            on_new_note();
+        }
+
         public void update_note(Note note) {
             notes_map[note.id] = note;
-            var note_row = find_note_row(note.id);
+            var note_row = rows_map[note.id];
             if (note_row != null) {
                 note_row.update(note);
             }
@@ -216,24 +222,11 @@ namespace Knotes {
 
         public void remove_note(string id) {
             notes_map.unset(id);
-            var note_row = find_note_row(id);
+            var note_row = rows_map[id];
             if (note_row != null) {
+                rows_map.unset(id);
                 list_box.remove(note_row);
             }
-        }
-
-        private NoteRow? find_note_row(string id) {
-            int index = 0;
-            while (true) {
-                var list_row = list_box.get_row_at_index(index);
-                if (list_row == null) break;
-                var note_row = list_row.get_child() as NoteRow;
-                if (note_row != null && note_row.note_id == id) {
-                    return note_row;
-                }
-                index++;
-            }
-            return null;
         }
 
         private void on_external_note_updated(string id) {
@@ -242,7 +235,7 @@ namespace Knotes {
 
             if (notes_map.has_key(id)) {
                 notes_map[id] = note;
-                var note_row = find_note_row(id);
+                var note_row = rows_map[id];
                 if (note_row != null) {
                     note_row.update(note);
                 }
