@@ -27,26 +27,12 @@ namespace Knotes {
             connect_signals();
         }
 
-        construct {
-            var css_provider = new Gtk.CssProvider();
-            css_provider.load_from_string("""
-                .note-title { font-size: 1.4em; font-weight: bold; }
-                .note-content text { font-size: 1.1em; }
-                .sidebar { background: @sidebar_bg_color; }
-            """);
-            Gtk.StyleContext.add_provider_for_display(
-                get_display(),
-                css_provider,
-                Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
-            );
-        }
-
         private void build_ui() {
             var paned = new Gtk.Paned(Gtk.Orientation.HORIZONTAL);
 
             // --- Sidebar ---
             var sidebar = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
-            sidebar.add_css_class("sidebar");
+            sidebar.add_css_class("navigation-sidebar");
             sidebar.set_size_request(250, -1);
 
             note_list = new NoteListBox(repository);
@@ -79,7 +65,7 @@ namespace Knotes {
                 hexpand = true,
                 placeholder_text = "Note title…"
             };
-            title_entry.add_css_class("note-title");
+            title_entry.add_css_class("title-2");
             title_entry.add_css_class("flat");
 
             delete_button = new Gtk.Button() {
@@ -111,7 +97,6 @@ namespace Knotes {
                 bottom_margin = 8,
                 left_margin = 8
             };
-            content_view.add_css_class("note-content");
 
             var scrolled = new Gtk.ScrolledWindow() {
                 hexpand = true,

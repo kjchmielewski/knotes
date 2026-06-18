@@ -40,12 +40,13 @@ namespace Knotes {
     /**
      * Implementation of the StatusNotifierItem D-Bus interface.
      *
-     * Exposes the app icon as an SNI IconPixmap so trays do not need to
-     * resolve the themed icon name. The pixmap is rendered from the bundled
-     * SVG resource, with a Cairo-generated fallback if loading fails.
+     * IconName is the primary tray icon path. IconPixmap is kept as an
+     * opt-in fallback for environments that fail to resolve the installed
+     * themed icon by name.
      */
     public class StatusNotifierItemImpl : GLib.Object, StatusNotifierItemIface {
         private const int ICON_SIZE = 24;
+        private const bool USE_ICON_PIXMAP_FALLBACK = false;
         private const string ICON_RESOURCE_PATH = "/com/knotes/app/icons/com.knotes.app.svg";
 
         // Internal signals (not D-Bus)
@@ -65,7 +66,13 @@ namespace Knotes {
         public string Menu { owned get { return "/com/knotes/app/menu"; } }
 
         public Variant IconPixmap {
-            owned get { return generate_pixmap_variant(ICON_SIZE); }
+            owned get {
+                if (USE_ICON_PIXMAP_FALLBACK) {
+                    return generate_pixmap_variant(ICON_SIZE);
+                }
+
+                return empty_icon_pixmap_variant();
+            }
         }
 
         public Variant ToolTip {
@@ -119,9 +126,18 @@ namespace Knotes {
         // --- Icon generation ---
 
         /**
+         * Returns an empty SNI pixmap list so hosts prefer IconName.
+         */
+        private Variant empty_icon_pixmap_variant() {
+            var builder = new VariantBuilder(new VariantType("a(iiibay)"));
+            return builder.end();
+        }
+
+        /**
          * Returns the app icon's raw pixel data formatted as an SNI pixmap
-         * variant. The preferred source is the bundled SVG resource; the
-         * drawn Cairo icon remains as a defensive fallback.
+         * variant. This is intentionally disabled by default and should only
+         * be enabled as a compatibility fallback for hosts that do not resolve
+         * the installed IconName correctly.
          *
          * SNI spec format: a(iiibay)
          *   struct { int32 width, int32 height, int32 rowstride,
