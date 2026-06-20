@@ -2,5 +2,6 @@
 <gresources>
   <gresource prefix="/com/knotes/app">
     <file>icons/com.knotes.app.svg</file>
+    <file>style.css</file>
   </gresource>
 </gresources>
