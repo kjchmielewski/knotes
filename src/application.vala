@@ -1,6 +1,6 @@
 namespace Knotes {
 
-    public class Application : Gtk.Application {
+    public class Application : Adw.Application {
         private const string STYLE_RESOURCE_PATH = "/com/knotes/app/style.css";
 
         private NoteRepository repository;

@@ -1,6 +1,6 @@
 # Knotes
 
-A simple note-taking application built with **Vala** and **GTK4**.
+A simple note-taking application built with **Vala**, **GTK4**, **Libadwaita**, and **Blueprint**.
 
 ## Features
 
@@ -20,25 +20,27 @@ A simple note-taking application built with **Vala** and **GTK4**.
 - `glib-2.0`
 - `gio-2.0`
 - `gtk4`
+- `libadwaita-1`
+- `blueprint-compiler`
 - `json-glib-1.0`
 - `gee-0.8`
 
 ### Install dependencies (Ubuntu/Debian)
 
 ```bash
-sudo apt install valac meson libglib2.0-dev libgtk-4-dev libjson-glib-dev libgee-0.8-dev
+sudo apt install valac meson blueprint-compiler libglib2.0-dev libgtk-4-dev libadwaita-1-dev libjson-glib-dev libgee-0.8-dev
 ```
 
 ### Install dependencies (Fedora)
 
 ```bash
-sudo dnf install valac meson glib2-devel gtk4-devel json-glib-devel libgee-devel
+sudo dnf install valac meson blueprint-compiler glib2-devel gtk4-devel libadwaita-devel json-glib-devel libgee-devel
 ```
 
 ### Install dependencies (openSUSE)
 
 ```bash
-sudo zypper install valac meson glib2-devel gtk4-devel json-glib-devel libgee-devel
+sudo zypper install valac meson blueprint-compiler glib2-devel gtk4-devel libadwaita-devel json-glib-devel libgee-devel
 ```
 
 ## Build and Run
@@ -79,8 +81,8 @@ knotes/
 ├── src/
 │   ├── meson.build            # Source build definition
 │   ├── main.vala              # Entry point (--tray / --start-minimized flag parsing)
-│   ├── application.vala       # GTK Application subclass, tray lifecycle
-│   ├── main_window.vala       # Main window layout, minimize-to-tray
+│   ├── application.vala       # Libadwaita Application subclass, tray lifecycle
+│   ├── main_window.vala       # Main window template binding, editor wiring, minimize-to-tray
 │   ├── note.vala              # Note data model
 │   ├── note_repository.vala   # File-based persistence layer
 │   ├── note_list_box.vala     # Sidebar note list widget
@@ -90,6 +92,9 @@ knotes/
 │   ├── icons/
 │   │   ├── meson.build        # Icon installation
 │   │   └── com.knotes.app.svg # Application icon (also used for tray)
+│   ├── main_window.blp        # Blueprint template compiled into GResource
+│   ├── knotes.gresource.xml   # GResource manifest for generated UI, CSS, and icons
+│   ├── style.css              # Application CSS
 │   ├── knotes.desktop.in      # Desktop entry
 │   └── knotes.metainfo.xml.in # AppStream metadata
 └── README.md
@@ -102,8 +107,8 @@ knotes/
 | `Note` | Data model — immutable properties, JSON serialization |
 | `NoteRepository` | Persistence — filesystem read/write, directory monitoring |
 | `NoteListBox` | Sidebar widget — search, list, row management |
-| `MainWindow` | Layout — split pane, editor, signal wiring, minimize-to-tray |
-| `Application` | Entry point — GTK application lifecycle, tray orchestration, start-minimized mode |
+| `MainWindow` | Libadwaita window template binding — split pane, editor, signal wiring, minimize-to-tray |
+| `Application` | Entry point — Libadwaita application lifecycle, tray orchestration, start-minimized mode |
 | `TrayManager` | **StatusNotifierItem** and **D-BusMenu** implementation (Wayland-ready) |
 
 ## Tray Icon

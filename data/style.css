@@ -1,4 +1,7 @@
 window {
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
+    border-radius: 8px;
+}
+
+list row:selected {
+    background-color: #4f94cd;
 }

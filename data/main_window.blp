@@ -1,0 +1,31 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $KnotesMainWindow : Adw.ApplicationWindow {
+  title: "Knotes";
+  default-width: 900;
+  default-height: 600;
+
+  content: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      [end]
+      Gtk.MenuButton header_menu_button {
+        icon-name: "open-menu-symbolic";
+        tooltip-text: "Menu";
+        styles ["flat", "circular"]
+      }
+
+      [end]
+      Gtk.Button header_new_button {
+        icon-name: "document-new-symbolic";
+        tooltip-text: "New note";
+        styles ["flat", "circular"]
+      }
+    }
+
+    content: Gtk.Paned main_paned {
+      orientation: horizontal;
+    };
+  };
+}

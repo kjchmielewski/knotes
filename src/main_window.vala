@@ -1,6 +1,14 @@
 namespace Knotes {
 
-    public class MainWindow : Gtk.ApplicationWindow {
+    [GtkTemplate(ui = "/com/knotes/app/main_window.ui")]
+    public class MainWindow : Adw.ApplicationWindow {
+        [GtkChild]
+        private unowned Gtk.Paned main_paned;
+        [GtkChild]
+        private unowned Gtk.Button header_new_button;
+        [GtkChild]
+        private unowned Gtk.MenuButton header_menu_button;
+
         private NoteRepository repository;
         private NoteListBox note_list;
         private Gtk.Stack editor_stack;
@@ -8,27 +16,25 @@ namespace Knotes {
         private Gtk.Entry title_entry;
         private Gtk.TextView content_view;
         private Gtk.Button delete_button;
-        private Gtk.Button new_button;
         private Gtk.Label no_selection_label;
         private string? current_note_id = null;
         private uint save_timeout_id = 0;
         private bool tray_enabled;
 
         public MainWindow(Gtk.Application app, NoteRepository repository, bool tray_enabled) {
-            Object(
-                application: app,
-                title: "Knotes",
-                default_width: 900,
-                default_height: 600
-            );
+            Object(application: app);
             this.repository = repository;
             this.tray_enabled = tray_enabled;
             build_ui();
             connect_signals();
         }
 
+        construct {
+            init_template();
+        }
+
         private void build_ui() {
-            var paned = new Gtk.Paned(Gtk.Orientation.HORIZONTAL);
+            setup_header_menu();
 
             // --- Sidebar ---
             var sidebar = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
@@ -38,7 +44,7 @@ namespace Knotes {
             note_list = new NoteListBox(repository);
             sidebar.append(note_list);
 
-            paned.set_start_child(sidebar);
+            main_paned.set_start_child(sidebar);
 
             // --- Editor area ---
             editor_stack = new Gtk.Stack();
@@ -59,8 +65,8 @@ namespace Knotes {
                 margin_bottom = 16
             };
 
-            // Title bar with title entry and actions
-            var title_bar = new Gtk.CenterBox();
+            // Title entry and actions
+            var title_bar = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 8);
             title_entry = new Gtk.Entry() {
                 hexpand = true,
                 placeholder_text = "Note title…"
@@ -74,14 +80,8 @@ namespace Knotes {
             };
             delete_button.add_css_class("destructive-action");
 
-            new_button = new Gtk.Button() {
-                icon_name = "document-new-symbolic",
-                tooltip_text = "New note"
-            };
-
-            title_bar.set_start_widget(new_button);
-            title_bar.set_center_widget(title_entry);
-            title_bar.set_end_widget(delete_button);
+            title_bar.append(title_entry);
+            title_bar.append(delete_button);
             editor_view.append(title_bar);
 
             // Separator
@@ -106,15 +106,13 @@ namespace Knotes {
             editor_view.append(scrolled);
 
             editor_stack.add_named(editor_view, "editor");
-            paned.set_end_child(editor_stack);
-
-            set_child(paned);
+            main_paned.set_end_child(editor_stack);
         }
 
         private void connect_signals() {
             note_list.note_selected.connect(on_note_selected);
+            header_new_button.clicked.connect(on_new_note);
             delete_button.clicked.connect(on_delete_note);
-            new_button.clicked.connect(on_new_note);
             title_entry.changed.connect(on_note_modified);
             content_view.buffer.changed.connect(on_note_modified);
 
@@ -122,6 +120,12 @@ namespace Knotes {
             if (tray_enabled) {
                 this.close_request.connect(on_close_request);
             }
+        }
+
+        private void setup_header_menu() {
+            var menu = new GLib.Menu();
+            menu.append("Quit", "app.quit");
+            header_menu_button.menu_model = menu;
         }
 
         private bool on_close_request() {

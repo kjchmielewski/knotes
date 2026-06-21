@@ -55,7 +55,6 @@ namespace Knotes {
     public class NoteListBox : Gtk.Box {
         private Gtk.ListBox list_box;
         private Gtk.Entry search_entry;
-        private Gtk.Button new_button;
         private NoteRepository repository;
         private HashMap<string, Note> notes_map;
         private HashMap<string, NoteRow> rows_map;
@@ -77,42 +76,6 @@ namespace Knotes {
         }
 
         private void build_ui() {
-            var header_bar = new Gtk.CenterBox();
-
-            var title_label = new Gtk.Label("Notes") {
-                halign = Gtk.Align.START,
-                margin_start = 8
-            };
-            title_label.add_css_class("title");
-
-            new_button = new Gtk.Button() {
-                icon_name = "document-new-symbolic",
-                tooltip_text = "New note"
-            };
-            new_button.add_css_class("flat");
-            new_button.add_css_class("circular");
-
-            // Menu button with Quit option
-            var menu = new GLib.Menu();
-            menu.append("Quit", "app.quit");
-
-            var menu_button = new Gtk.MenuButton() {
-                menu_model = menu,
-                icon_name = "open-menu-symbolic",
-                tooltip_text = "Menu"
-            };
-            menu_button.add_css_class("flat");
-            menu_button.add_css_class("circular");
-
-            var header_end_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0) {
-                margin_end = 8
-            };
-            header_end_box.append(new_button);
-            header_end_box.append(menu_button);
-
-            header_bar.set_start_widget(title_label);
-            header_bar.set_end_widget(header_end_box);
-
             search_entry = new Gtk.Entry() {
                 placeholder_text = "Search notes…",
                 margin_start = 8,
@@ -131,13 +94,11 @@ namespace Knotes {
             };
             scrolled.set_child(list_box);
 
-            append(header_bar);
             append(search_entry);
             append(scrolled);
         }
 
         private void connect_signals() {
-            new_button.clicked.connect(on_new_note);
             search_entry.changed.connect(on_search_changed);
             list_box.row_activated.connect(on_row_activated);
             repository.note_updated.connect(on_external_note_updated);
