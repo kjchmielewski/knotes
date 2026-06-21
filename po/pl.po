@@ -1,0 +1,56 @@
+# Polish translations for Knotes.
+# Copyright (C) 2026 Knotes contributors
+# This file is distributed under the same license as the Knotes package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: knotes 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-21 00:00+0000\n"
+"PO-Revision-Date: 2026-06-21 00:00+0000\n"
+"Last-Translator: Krzysztof Chmielewski\n"
+"Language-Team: Polish\n"
+"Language: pl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
+
+msgid "Menu"
+msgstr "Menu"
+
+msgid "New note"
+msgstr "Nowa notatka"
+
+msgid "Select a note or create a new one"
+msgstr "Wybierz notatkę lub utwórz nową"
+
+msgid "Note title…"
+msgstr "Tytuł notatki…"
+
+msgid "Delete note"
+msgstr "Usuń notatkę"
+
+msgid "Search notes…"
+msgstr "Szukaj notatek…"
+
+msgid "Quit"
+msgstr "Zakończ"
+
+msgid "Delete this note?"
+msgstr "Usunąć tę notatkę?"
+
+msgid "This action cannot be undone."
+msgstr "Tej operacji nie można cofnąć."
+
+msgid "Cancel"
+msgstr "Anuluj"
+
+msgid "Delete"
+msgstr "Usuń"
+
+msgid "Untitled"
+msgstr "Bez tytułu"
+
+msgid "A simple note-taking app"
+msgstr "Prosta aplikacja do notatek"

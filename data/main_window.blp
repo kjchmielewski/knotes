@@ -1,6 +1,8 @@
 using Gtk 4.0;
 using Adw 1;
 
+translation-domain "knotes";
+
 template $KnotesMainWindow : Adw.ApplicationWindow {
   title: "Knotes";
   default-width: 900;
@@ -12,14 +14,14 @@ template $KnotesMainWindow : Adw.ApplicationWindow {
       [end]
       Gtk.MenuButton header_menu_button {
         icon-name: "open-menu-symbolic";
-        tooltip-text: "Menu";
+        tooltip-text: _("Menu");
         styles ["flat", "circular"]
       }
 
       [end]
       Gtk.Button header_new_button {
         icon-name: "document-new-symbolic";
-        tooltip-text: "New note";
+        tooltip-text: _("New note");
         styles ["flat", "circular"]
       }
     }
@@ -34,7 +36,7 @@ template $KnotesMainWindow : Adw.ApplicationWindow {
         Gtk.StackPage {
           name: "empty";
           child: Gtk.Label no_selection_label {
-            label: "Select a note or create a new one";
+            label: _("Select a note or create a new one");
             halign: center;
             valign: center;
             opacity: 0.5;
@@ -58,13 +60,13 @@ template $KnotesMainWindow : Adw.ApplicationWindow {
 
               Gtk.Entry title_entry {
                 hexpand: true;
-                placeholder-text: "Note title…";
+                placeholder-text: _("Note title…");
                 styles ["title-2", "flat"]
               }
 
               Gtk.Button delete_button {
                 icon-name: "user-trash-symbolic";
-                tooltip-text: "Delete note";
+                tooltip-text: _("Delete note");
                 styles ["destructive-action"]
               }
             }

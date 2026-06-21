@@ -235,7 +235,7 @@ namespace Knotes {
         private Variant get_quit_item_property(string name) {
             switch (name) {
                 case "label":
-                    return new Variant.string("Quit");
+                    return new Variant.string(_("Quit"));
                 case "visible":
                 case "enabled":
                     return new Variant.boolean(true);
@@ -307,7 +307,7 @@ namespace Knotes {
                 builder.add_value(pixmaps.end());
 
                 builder.add("s", "Knotes");
-                builder.add("s", "A simple note-taking app");
+                builder.add("s", _("A simple note-taking app"));
                 return builder.end();
             }
         }

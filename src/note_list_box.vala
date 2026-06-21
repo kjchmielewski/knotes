@@ -75,7 +75,7 @@ namespace Knotes {
         }
 
         private void on_new_note() {
-            var note = new Note.with_new_content("Untitled", "");
+            var note = new Note.with_new_content(_("Untitled"), "");
             repository.save_note(note);
             notes_map[note.id] = note;
             add_note_row(note);

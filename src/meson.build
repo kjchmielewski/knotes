@@ -1,12 +1,15 @@
 sources = files(
     'main.vala',
     'application.vala',
+    'i18n.vala',
     'main_window.vala',
     'note.vala',
     'note_repository.vala',
     'note_list_box.vala',
     'tray_manager.vala'
 )
+
+sources += config_file
 
 blueprint_compiler = find_program('blueprint-compiler')
 
@@ -55,6 +58,7 @@ executable(
     sources,
     resources,
     dependencies: dependencies,
+    c_args: ['-DGETTEXT_PACKAGE="@0@"'.format(gettext_package)],
     vala_args: ['--gresourcesdir=' + meson.current_build_dir()],
     install: true
 )

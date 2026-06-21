@@ -22,25 +22,26 @@ A simple note-taking application built with **Vala**, **GTK4**, **Libadwaita**, 
 - `gtk4`
 - `libadwaita-1`
 - `blueprint-compiler`
+- `gettext`
 - `json-glib-1.0`
 - `gee-0.8`
 
 ### Install dependencies (Ubuntu/Debian)
 
 ```bash
-sudo apt install valac meson blueprint-compiler libglib2.0-dev libgtk-4-dev libadwaita-1-dev libjson-glib-dev libgee-0.8-dev
+sudo apt install valac meson blueprint-compiler gettext libglib2.0-dev libgtk-4-dev libadwaita-1-dev libjson-glib-dev libgee-0.8-dev
 ```
 
 ### Install dependencies (Fedora)
 
 ```bash
-sudo dnf install valac meson blueprint-compiler glib2-devel gtk4-devel libadwaita-devel json-glib-devel libgee-devel
+sudo dnf install valac meson blueprint-compiler gettext glib2-devel gtk4-devel libadwaita-devel json-glib-devel libgee-devel
 ```
 
 ### Install dependencies (openSUSE)
 
 ```bash
-sudo zypper install valac meson blueprint-compiler glib2-devel gtk4-devel libadwaita-devel json-glib-devel libgee-devel
+sudo zypper install valac meson blueprint-compiler gettext-tools glib2-devel gtk4-devel libadwaita-devel json-glib-devel libgee-devel
 ```
 
 ## Build and Run
@@ -54,6 +55,22 @@ meson compile -C builddir
 ```
 
 `--start-minimized` automatically enables tray mode, so `--tray` is not required with it.
+
+### Translations
+
+Polish UI translations are installed through gettext. After installation, they are loaded automatically for a Polish locale.
+
+For testing translations directly from the build directory without installing:
+
+```bash
+LANGUAGE=pl KNOTES_LOCALE_DIR="$PWD/builddir/po" ./builddir/src/knotes
+```
+
+Regenerate the translation template after changing translatable strings:
+
+```bash
+meson compile -C builddir knotes-pot
+```
 
 ### Install
 
@@ -80,9 +97,11 @@ knotes/
 ├── meson.build                # Root build definition
 ├── src/
 │   ├── meson.build            # Source build definition
-│   ├── main.vala              # Entry point (--tray / --start-minimized flag parsing)
+│   ├── main.vala              # Entry point, localization, flag parsing
+│   ├── config.vala.in         # Build-time constants for localization
 │   ├── application.vala       # Libadwaita Application subclass, tray lifecycle
 │   ├── main_window.vala       # Main window template binding, editor wiring, minimize-to-tray
+│   ├── i18n.vala              # gettext helper
 │   ├── note.vala              # Note data model
 │   ├── note_repository.vala   # File-based persistence layer
 │   ├── note_list_box.vala     # Sidebar note list widget
@@ -99,6 +118,10 @@ knotes/
 │   ├── style.css              # Application CSS
 │   ├── knotes.desktop.in      # Desktop entry
 │   └── knotes.metainfo.xml.in # AppStream metadata
+├── po/
+│   ├── LINGUAS                # Enabled translations
+│   ├── POTFILES               # Sources scanned for translatable strings
+│   └── pl.po                  # Polish translation
 └── README.md
 ```
 

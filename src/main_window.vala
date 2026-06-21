@@ -62,7 +62,7 @@ namespace Knotes {
 
         private void setup_header_menu() {
             var menu = new GLib.Menu();
-            menu.append("Quit", "app.quit");
+            menu.append(_("Quit"), "app.quit");
             header_menu_button.menu_model = menu;
         }
 
@@ -146,10 +146,10 @@ namespace Knotes {
             if (current_note_id == null) return;
 
             var dialog = new Gtk.AlertDialog(
-                "Delete this note?"
+                _("Delete this note?")
             );
-            dialog.detail = "This action cannot be undone.";
-            dialog.buttons = { "Cancel", "Delete" };
+            dialog.detail = _("This action cannot be undone.");
+            dialog.buttons = { _("Cancel"), _("Delete") };
             dialog.cancel_button = 0;
             dialog.default_button = 1;
 

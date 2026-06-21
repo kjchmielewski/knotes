@@ -1,0 +1,5 @@
+data/main_window.blp
+data/note_list_box.blp
+src/main_window.vala
+src/note_list_box.vala
+src/tray_manager.vala

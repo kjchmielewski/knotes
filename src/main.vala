@@ -1,6 +1,12 @@
 namespace Knotes {
 
     public static int main(string[] args) {
+        Intl.setlocale(LocaleCategory.ALL, "");
+        var locale_dir = Environment.get_variable("KNOTES_LOCALE_DIR") ?? LOCALE_DIR;
+        Intl.bindtextdomain(GETTEXT_PACKAGE, locale_dir);
+        Intl.bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
+        Intl.textdomain(GETTEXT_PACKAGE);
+
         // Check for app-specific flags and strip them from args
         // so GTK doesn't complain about unknown options.
         bool tray_enabled = false;
