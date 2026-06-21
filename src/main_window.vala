@@ -9,14 +9,17 @@ namespace Knotes {
         [GtkChild]
         private unowned Gtk.MenuButton header_menu_button;
 
+        [GtkChild]
+        private unowned Gtk.Stack editor_stack;
+        [GtkChild]
+        private unowned Gtk.Entry title_entry;
+        [GtkChild]
+        private unowned Gtk.TextView content_view;
+        [GtkChild]
+        private unowned Gtk.Button delete_button;
+
         private NoteRepository repository;
         private NoteListBox note_list;
-        private Gtk.Stack editor_stack;
-        private Gtk.Box editor_view;
-        private Gtk.Entry title_entry;
-        private Gtk.TextView content_view;
-        private Gtk.Button delete_button;
-        private Gtk.Label no_selection_label;
         private string? current_note_id = null;
         private uint save_timeout_id = 0;
         private bool tray_enabled;
@@ -46,67 +49,6 @@ namespace Knotes {
 
             main_paned.set_start_child(sidebar);
 
-            // --- Editor area ---
-            editor_stack = new Gtk.Stack();
-            editor_stack.set_transition_type(Gtk.StackTransitionType.CROSSFADE);
-
-            no_selection_label = new Gtk.Label("Select a note or create a new one") {
-                halign = Gtk.Align.CENTER,
-                valign = Gtk.Align.CENTER,
-                opacity = 0.5
-            };
-            no_selection_label.add_css_class("large-title");
-            editor_stack.add_named(no_selection_label, "empty");
-
-            editor_view = new Gtk.Box(Gtk.Orientation.VERTICAL, 8) {
-                margin_start = 16,
-                margin_end = 16,
-                margin_top = 16,
-                margin_bottom = 16
-            };
-
-            // Title entry and actions
-            var title_bar = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 8);
-            title_entry = new Gtk.Entry() {
-                hexpand = true,
-                placeholder_text = "Note title…"
-            };
-            title_entry.add_css_class("title-2");
-            title_entry.add_css_class("flat");
-
-            delete_button = new Gtk.Button() {
-                icon_name = "user-trash-symbolic",
-                tooltip_text = "Delete note"
-            };
-            delete_button.add_css_class("destructive-action");
-
-            title_bar.append(title_entry);
-            title_bar.append(delete_button);
-            editor_view.append(title_bar);
-
-            // Separator
-            editor_view.append(new Gtk.Separator(Gtk.Orientation.HORIZONTAL));
-
-            // Content text view
-            content_view = new Gtk.TextView() {
-                hexpand = true,
-                vexpand = true,
-                wrap_mode = Gtk.WrapMode.WORD_CHAR,
-                top_margin = 8,
-                right_margin = 8,
-                bottom_margin = 8,
-                left_margin = 8
-            };
-
-            var scrolled = new Gtk.ScrolledWindow() {
-                hexpand = true,
-                vexpand = true
-            };
-            scrolled.set_child(content_view);
-            editor_view.append(scrolled);
-
-            editor_stack.add_named(editor_view, "editor");
-            main_paned.set_end_child(editor_stack);
         }
 
         private void connect_signals() {

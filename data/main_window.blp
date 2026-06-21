@@ -26,6 +26,70 @@ template $KnotesMainWindow : Adw.ApplicationWindow {
 
     content: Gtk.Paned main_paned {
       orientation: horizontal;
+
+      [end]
+      Gtk.Stack editor_stack {
+        transition-type: crossfade;
+
+        Gtk.StackPage {
+          name: "empty";
+          child: Gtk.Label no_selection_label {
+            label: "Select a note or create a new one";
+            halign: center;
+            valign: center;
+            opacity: 0.5;
+            styles ["large-title"]
+          };
+        }
+
+        Gtk.StackPage {
+          name: "editor";
+          child: Gtk.Box editor_view {
+            orientation: vertical;
+            spacing: 8;
+            margin-start: 16;
+            margin-end: 16;
+            margin-top: 16;
+            margin-bottom: 16;
+
+            Gtk.Box {
+              orientation: horizontal;
+              spacing: 8;
+
+              Gtk.Entry title_entry {
+                hexpand: true;
+                placeholder-text: "Note title…";
+                styles ["title-2", "flat"]
+              }
+
+              Gtk.Button delete_button {
+                icon-name: "user-trash-symbolic";
+                tooltip-text: "Delete note";
+                styles ["destructive-action"]
+              }
+            }
+
+            Gtk.Separator {
+              orientation: horizontal;
+            }
+
+            Gtk.ScrolledWindow {
+              hexpand: true;
+              vexpand: true;
+
+              Gtk.TextView content_view {
+                hexpand: true;
+                vexpand: true;
+                wrap-mode: word_char;
+                top-margin: 8;
+                right-margin: 8;
+                bottom-margin: 8;
+                left-margin: 8;
+              }
+            }
+          };
+        }
+      }
     };
   };
 }

@@ -133,6 +133,12 @@ namespace Knotes {
             repository.save_note(note);
             notes_map[note.id] = note;
             add_note_row(note);
+
+            var row = rows_map[note.id];
+            if (row != null) {
+                list_box.select_row(row);
+            }
+
             selected_id = note.id;
             note_selected(note.id);
         }
