@@ -17,11 +17,25 @@ main_window_ui = custom_target(
     command: [blueprint_compiler, 'compile', '--output', '@OUTPUT@', '@INPUT@']
 )
 
+note_list_box_ui = custom_target(
+    'note-list-box-ui',
+    input: '../data/note_list_box.blp',
+    output: 'note_list_box.ui',
+    command: [blueprint_compiler, 'compile', '--output', '@OUTPUT@', '@INPUT@']
+)
+
+note_row_ui = custom_target(
+    'note-row-ui',
+    input: '../data/note_row.blp',
+    output: 'note_row.ui',
+    command: [blueprint_compiler, 'compile', '--output', '@OUTPUT@', '@INPUT@']
+)
+
 resources = gnome.compile_resources(
     'knotes-resources',
     '../data/knotes.gresource.xml',
     source_dir: ['../data', meson.current_build_dir()],
-    dependencies: main_window_ui,
+    dependencies: [main_window_ui, note_list_box_ui, note_row_ui],
     c_name: 'knotes'
 )
 

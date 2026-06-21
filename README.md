@@ -92,7 +92,9 @@ knotes/
 │   ├── icons/
 │   │   ├── meson.build        # Icon installation
 │   │   └── com.knotes.app.svg # Application icon (also used for tray)
-│   ├── main_window.blp        # Blueprint template compiled into GResource
+│   ├── main_window.blp        # Main window Blueprint template compiled into GResource
+│   ├── note_list_box.blp      # Note list Blueprint template compiled into GResource
+│   ├── note_row.blp           # Note row Blueprint template compiled into GResource
 │   ├── knotes.gresource.xml   # GResource manifest for generated UI, CSS, and icons
 │   ├── style.css              # Application CSS
 │   ├── knotes.desktop.in      # Desktop entry

@@ -1,0 +1,28 @@
+using Gtk 4.0;
+
+template $KnotesNoteRow : Gtk.ListBoxRow {
+  child: Gtk.Box {
+    orientation: vertical;
+    spacing: 2;
+    margin-start: 8;
+    margin-end: 8;
+    margin-top: 6;
+    margin-bottom: 6;
+
+    Gtk.Label title_label {
+      halign: start;
+      use-markup: true;
+      ellipsize: end;
+      max-width-chars: 30;
+      styles ["heading"]
+    }
+
+    Gtk.Label preview_label {
+      halign: start;
+      ellipsize: end;
+      max-width-chars: 30;
+      opacity: 0.7;
+      styles ["caption"]
+    }
+  };
+}

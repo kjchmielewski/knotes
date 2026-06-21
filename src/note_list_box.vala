@@ -2,59 +2,32 @@ using Gee;
 
 namespace Knotes {
 
+    [GtkTemplate(ui = "/com/knotes/app/note_row.ui")]
     public class NoteRow : Gtk.ListBoxRow {
+        [GtkChild]
+        private unowned Gtk.Label title_label;
+        [GtkChild]
+        private unowned Gtk.Label preview_label;
+
         public string note_id { get; construct; }
-        private Gtk.Box content_box;
 
         public NoteRow(Note note) {
             Object(note_id: note.id);
-            build_ui(note);
-        }
-
-        private void build_ui(Note note) {
-            content_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 2) {
-                margin_start = 8,
-                margin_end = 8,
-                margin_top = 6,
-                margin_bottom = 6
-            };
-
-            var title_label = new Gtk.Label(note.title) {
-                halign = Gtk.Align.START,
-                use_markup = true,
-                ellipsize = Pango.EllipsizeMode.END,
-                max_width_chars = 30
-            };
-            title_label.add_css_class("heading");
-
-            var preview_label = new Gtk.Label(note.preview(60)) {
-                halign = Gtk.Align.START,
-                ellipsize = Pango.EllipsizeMode.END,
-                max_width_chars = 30,
-                opacity = 0.7
-            };
-            preview_label.add_css_class("caption");
-
-            content_box.append(title_label);
-            content_box.append(preview_label);
-            set_child(content_box);
+            update(note);
         }
 
         public void update(Note note) {
-            var title = content_box.get_first_child();
-            if (title is Gtk.Label) {
-                ((Gtk.Label) title).label = note.title;
-                var preview = title.get_next_sibling();
-                if (preview is Gtk.Label) {
-                    ((Gtk.Label) preview).label = note.preview(60);
-                }
-            }
+            title_label.label = note.title;
+            preview_label.label = note.preview(60);
         }
     }
 
+    [GtkTemplate(ui = "/com/knotes/app/note_list_box.ui")]
     public class NoteListBox : Gtk.Box {
-        private Gtk.ListBox list_box;
-        private Gtk.Entry search_entry;
+        [GtkChild]
+        private unowned Gtk.ListBox list_box;
+        [GtkChild]
+        private unowned Gtk.Entry search_entry;
         private NoteRepository repository;
         private HashMap<string, Note> notes_map;
         private HashMap<string, NoteRow> rows_map;
@@ -63,39 +36,12 @@ namespace Knotes {
         public signal void note_selected(string? id);
 
         public NoteListBox(NoteRepository repository) {
-            Object(
-                orientation: Gtk.Orientation.VERTICAL,
-                spacing: 4
-            );
+            Object();
             this.repository = repository;
             this.notes_map = new HashMap<string, Note>();
             this.rows_map = new HashMap<string, NoteRow>();
-            build_ui();
             load_notes();
             connect_signals();
-        }
-
-        private void build_ui() {
-            search_entry = new Gtk.Entry() {
-                placeholder_text = "Search notes…",
-                margin_start = 8,
-                margin_end = 8,
-                margin_bottom = 4
-            };
-
-            list_box = new Gtk.ListBox() {
-                vexpand = true
-            };
-            list_box.add_css_class("boxed-list");
-            list_box.set_selection_mode(Gtk.SelectionMode.SINGLE);
-
-            var scrolled = new Gtk.ScrolledWindow() {
-                vexpand = true
-            };
-            scrolled.set_child(list_box);
-
-            append(search_entry);
-            append(scrolled);
         }
 
         private void connect_signals() {

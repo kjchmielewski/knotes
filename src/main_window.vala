@@ -32,10 +32,6 @@ namespace Knotes {
             connect_signals();
         }
 
-        construct {
-            init_template();
-        }
-
         private void build_ui() {
             setup_header_menu();
 

@@ -1,0 +1,23 @@
+using Gtk 4.0;
+
+template $KnotesNoteListBox : Gtk.Box {
+  orientation: vertical;
+  spacing: 4;
+
+  Gtk.Entry search_entry {
+    placeholder-text: "Search notes…";
+    margin-start: 8;
+    margin-end: 8;
+    margin-bottom: 4;
+  }
+
+  Gtk.ScrolledWindow {
+    vexpand: true;
+
+    Gtk.ListBox list_box {
+      vexpand: true;
+      selection-mode: single;
+      styles ["boxed-list"]
+    }
+  }
+}
