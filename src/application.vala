@@ -40,19 +40,23 @@ namespace Knotes {
             }
 
             if (start_minimized && tray_enabled) {
+                ensure_main_window();
                 hold();
             } else if (start_minimized) {
                 start_minimized = false;
             }
         }
 
-        private void show_main_window() {
-            load_application_style();
-
+        private MainWindow ensure_main_window() {
             if (main_window == null) {
                 main_window = new MainWindow(this, repository, tray_enabled);
             }
-            main_window.restore_from_tray();
+            return main_window;
+        }
+
+        private void show_main_window() {
+            var window = ensure_main_window();
+            window.restore_from_tray();
         }
 
         private void load_application_style() {
