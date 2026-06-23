@@ -22,12 +22,11 @@ namespace Knotes {
         private NoteListBox note_list;
         private string? current_note_id = null;
         private uint save_timeout_id = 0;
-        private bool tray_enabled;
 
         public MainWindow(Gtk.Application app, NoteRepository repository, bool tray_enabled) {
             Object(application: app);
             this.repository = repository;
-            this.tray_enabled = tray_enabled;
+            hide_on_close = tray_enabled;
             build_ui();
             connect_signals();
         }
@@ -53,11 +52,6 @@ namespace Knotes {
             delete_button.clicked.connect(on_delete_note);
             title_entry.changed.connect(on_note_modified);
             content_view.buffer.changed.connect(on_note_modified);
-
-            // Intercept close request for tray mode
-            if (tray_enabled) {
-                this.close_request.connect(on_close_request);
-            }
         }
 
         private void setup_header_menu() {
@@ -66,19 +60,17 @@ namespace Knotes {
             header_menu_button.menu_model = menu;
         }
 
-        private bool on_close_request() {
-            if (tray_enabled) {
-                hide();
-                return true; // Prevent default close/destroy
-            }
-            return false; // Allow normal close
+        public void restore_from_tray() {
+            set_visible(true);
+            unminimize();
+            present();
         }
 
         /**
          * Really close the window (called from tray "Quit" action).
          */
         public void force_close() {
-            tray_enabled = false; // Disable tray behaviour so close goes through
+            hide_on_close = false;
             close();
         }
 

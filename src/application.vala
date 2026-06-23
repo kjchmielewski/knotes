@@ -52,8 +52,7 @@ namespace Knotes {
             if (main_window == null) {
                 main_window = new MainWindow(this, repository, tray_enabled);
             }
-            main_window.present();
-            main_window.set_visible(true);
+            main_window.restore_from_tray();
         }
 
         private void load_application_style() {
