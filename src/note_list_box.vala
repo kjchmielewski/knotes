@@ -97,9 +97,7 @@ namespace Knotes {
         /**
          * Creates a new note and adds it to the list.
          */
-        public void create_note() {
-            var note = new Note.with_new_content(_("Untitled"), "");
-            repository.save_note(note);
+        public void create_note(Note note) {
             notes_map[note.id] = note;
             add_note_row(note);
 
