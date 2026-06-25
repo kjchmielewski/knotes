@@ -74,21 +74,6 @@ namespace Knotes {
             list_box.append(row);
         }
 
-        private void on_new_note() {
-            var note = new Note.with_new_content(_("Untitled"), "");
-            repository.save_note(note);
-            notes_map[note.id] = note;
-            add_note_row(note);
-
-            var row = rows_map[note.id];
-            if (row != null) {
-                list_box.select_row(row);
-            }
-
-            selected_id = note.id;
-            note_selected(note.id);
-        }
-
         private void on_search_changed() {
             var query = search_entry.text.down();
             foreach (var entry in rows_map.entries) {
@@ -110,13 +95,26 @@ namespace Knotes {
         }
 
         /**
-         * Public helper called by both the sidebar's and the editor's
-         * "New note" button so that a visual row is always created.
+         * Creates a new note and adds it to the list.
          */
         public void create_note() {
-            on_new_note();
+            var note = new Note.with_new_content(_("Untitled"), "");
+            repository.save_note(note);
+            notes_map[note.id] = note;
+            add_note_row(note);
+
+            var row = rows_map[note.id];
+            if (row != null) {
+                list_box.select_row(row);
+            }
+
+            selected_id = note.id;
+            note_selected(note.id);
         }
 
+        /**
+         * Updates the note with the given ID.
+         */
         public void update_note(Note note) {
             notes_map[note.id] = note;
             var note_row = rows_map[note.id];
@@ -125,6 +123,9 @@ namespace Knotes {
             }
         }
 
+        /**
+         * Removes the note with the given ID.
+         */
         public void remove_note(string id) {
             var row = rows_map[id];
 
