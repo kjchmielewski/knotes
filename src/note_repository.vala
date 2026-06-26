@@ -115,17 +115,17 @@ namespace Knotes {
         }
 
         private void mark_own_update(string id) {
-            own_updated_note_ids.add(id);
-            Timeout.add(OWN_CHANGE_IGNORE_TIMEOUT_MS, () => {
-                own_updated_note_ids.remove(id);
-                return false;
-            });
+            mark_own_change(own_updated_note_ids, id);
         }
 
         private void mark_own_delete(string id) {
-            own_deleted_note_ids.add(id);
+            mark_own_change(own_deleted_note_ids, id);
+        }
+
+        private void mark_own_change(Gee.HashSet<string> note_ids, string id) {
+            note_ids.add(id);
             Timeout.add(OWN_CHANGE_IGNORE_TIMEOUT_MS, () => {
-                own_deleted_note_ids.remove(id);
+                note_ids.remove(id);
                 return false;
             });
         }

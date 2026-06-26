@@ -63,8 +63,7 @@ namespace Knotes {
             });
 
             foreach (var note in notes) {
-                notes_map[note.id] = note;
-                add_note_row(note);
+                insert_note(note);
             }
         }
 
@@ -72,6 +71,16 @@ namespace Knotes {
             var row = new NoteRow(note);
             rows_map[note.id] = row;
             list_box.append(row);
+        }
+
+        private void insert_note(Note note) {
+            notes_map[note.id] = note;
+            add_note_row(note);
+        }
+
+        private void select_note(string? id) {
+            selected_id = id;
+            note_selected(id);
         }
 
         private void on_search_changed() {
@@ -89,8 +98,7 @@ namespace Knotes {
         private void on_row_activated(Gtk.ListBoxRow row) {
             var note_row = row as NoteRow;
             if (note_row != null) {
-                selected_id = note_row.note_id;
-                note_selected(note_row.note_id);
+                select_note(note_row.note_id);
             }
         }
 
@@ -98,16 +106,14 @@ namespace Knotes {
          * Creates a new note and adds it to the list.
          */
         public void create_note(Note note) {
-            notes_map[note.id] = note;
-            add_note_row(note);
+            insert_note(note);
 
             var row = rows_map[note.id];
             if (row != null) {
                 list_box.select_row(row);
             }
 
-            selected_id = note.id;
-            note_selected(note.id);
+            select_note(note.id);
         }
 
         /**
@@ -139,11 +145,10 @@ namespace Knotes {
             var note = repository.load_note(id);
             if (note == null) return;
 
-            if (rows_map.has_key(id)) {
+            if (rows_map.has_key(note.id)) {
                 update_note(note);
             } else {
-                notes_map[id] = note;
-                add_note_row(note);
+                insert_note(note);
             }
 
             if (selected_id == id) {
@@ -153,8 +158,7 @@ namespace Knotes {
 
         private void on_external_note_deleted(string id) {
             if (selected_id == id) {
-                selected_id = null;
-                note_selected(null);
+                select_note(null);
             }
             remove_note(id);
         }
