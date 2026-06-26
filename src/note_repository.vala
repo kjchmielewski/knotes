@@ -1,9 +1,13 @@
 namespace Knotes {
 
     public class NoteRepository : GLib.Object {
+        private const uint OWN_CHANGE_IGNORE_TIMEOUT_MS = 1000;
+
         private string notes_dir;
         private FileMonitor monitor;
         private File notes_dir_file;
+        private Gee.HashSet<string> own_updated_note_ids;
+        private Gee.HashSet<string> own_deleted_note_ids;
 
         public signal void note_created(string id);
         public signal void note_updated(string id);
@@ -17,6 +21,8 @@ namespace Knotes {
                 "notes"
             );
             notes_dir_file = File.new_for_path(notes_dir);
+            own_updated_note_ids = new Gee.HashSet<string>();
+            own_deleted_note_ids = new Gee.HashSet<string>();
             ensure_directory();
             setup_monitor();
         }
@@ -89,6 +95,7 @@ namespace Knotes {
             generator.set_root(root);
             generator.pretty = true;
             try {
+                mark_own_update(note.id);
                 generator.to_file(file_path_for_id(note.id));
             } catch (GLib.Error e) {
                 warning("Failed to save note '%s': %s", note.id, e.message);
@@ -99,11 +106,36 @@ namespace Knotes {
             var file = File.new_for_path(file_path_for_id(id));
             try {
                 if (file.query_exists()) {
+                    mark_own_delete(id);
                     file.delete();
                 }
             } catch (GLib.Error e) {
                 warning("Failed to delete note '%s': %s", id, e.message);
             }
+        }
+
+        private void mark_own_update(string id) {
+            own_updated_note_ids.add(id);
+            Timeout.add(OWN_CHANGE_IGNORE_TIMEOUT_MS, () => {
+                own_updated_note_ids.remove(id);
+                return false;
+            });
+        }
+
+        private void mark_own_delete(string id) {
+            own_deleted_note_ids.add(id);
+            Timeout.add(OWN_CHANGE_IGNORE_TIMEOUT_MS, () => {
+                own_deleted_note_ids.remove(id);
+                return false;
+            });
+        }
+
+        private bool is_own_update(string id) {
+            return own_updated_note_ids.contains(id);
+        }
+
+        private bool is_own_delete(string id) {
+            return own_deleted_note_ids.contains(id);
         }
 
         private void on_directory_changed(File file, File? other_file, FileMonitorEvent event_type) {
@@ -114,10 +146,14 @@ namespace Knotes {
             switch (event_type) {
                 case FileMonitorEvent.CREATED:
                 case FileMonitorEvent.CHANGED:
-                    note_updated(id);
+                    if (!is_own_update(id)) {
+                        note_updated(id);
+                    }
                     break;
                 case FileMonitorEvent.DELETED:
-                    note_deleted(id);
+                    if (!is_own_delete(id)) {
+                        note_deleted(id);
+                    }
                     break;
                 default:
                     break;

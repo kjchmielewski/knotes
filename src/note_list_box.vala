@@ -139,15 +139,15 @@ namespace Knotes {
             var note = repository.load_note(id);
             if (note == null) return;
 
-            if (notes_map.has_key(id)) {
-                notes_map[id] = note;
-                var note_row = rows_map[id];
-                if (note_row != null) {
-                    note_row.update(note);
-                }
+            if (rows_map.has_key(id)) {
+                update_note(note);
             } else {
                 notes_map[id] = note;
                 add_note_row(note);
+            }
+
+            if (selected_id == id) {
+                note_selected(id);
             }
         }
 
