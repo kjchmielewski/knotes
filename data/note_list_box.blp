@@ -6,20 +6,46 @@ template $KnotesNoteListBox : Gtk.Box {
   orientation: vertical;
   spacing: 4;
 
-  Gtk.Entry search_entry {
-    placeholder-text: _("Search notes…");
-    margin-start: 8;
-    margin-end: 8;
-    margin-bottom: 4;
-  }
+  Gtk.Stack view_stack {
+    transition-type: crossfade;
 
-  Gtk.ScrolledWindow {
-    vexpand: true;
+    Gtk.StackPage {
+      name: "expanded";
+      child: Gtk.Box {
+        orientation: vertical;
+        spacing: 4;
 
-    Gtk.ListBox list_box {
-      vexpand: true;
-      selection-mode: single;
-      styles ["boxed-list"]
+        Gtk.Entry search_entry {
+          placeholder-text: _("Search notes…");
+          margin-start: 8;
+          margin-end: 8;
+          margin-bottom: 4;
+        }
+
+        Gtk.ScrolledWindow {
+          vexpand: true;
+
+          Gtk.ListBox list_box {
+            vexpand: true;
+            selection-mode: single;
+            styles ["boxed-list"]
+          }
+        }
+      };
+    }
+
+    Gtk.StackPage {
+      name: "compact";
+      child: Gtk.ScrolledWindow {
+        vexpand: true;
+        hscrollbar-policy: never;
+
+        Gtk.ListBox compact_list_box {
+          vexpand: true;
+          selection-mode: single;
+          styles ["compact-note-list"]
+        }
+      };
     }
   }
 }

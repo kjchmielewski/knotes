@@ -11,6 +11,14 @@ template $KnotesMainWindow : Adw.ApplicationWindow {
   content: Adw.ToolbarView {
     [top]
     Adw.HeaderBar {
+      [start]
+      Gtk.ToggleButton sidebar_toggle_button {
+        icon-name: "sidebar-show-symbolic";
+        tooltip-text: _("Collapse sidebar");
+        active: true;
+        styles ["flat", "circular"]
+      }
+
       [end]
       Gtk.MenuButton header_menu_button {
         icon-name: "open-menu-symbolic";

@@ -16,6 +16,9 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
 
+msgid "Collapse sidebar"
+msgstr "Zwiń pasek boczny"
+
 msgid "Menu"
 msgstr "Menu"
 
@@ -36,6 +39,9 @@ msgstr "Szukaj notatek…"
 
 msgid "Quit"
 msgstr "Zakończ"
+
+msgid "Expand sidebar"
+msgstr "Rozwiń pasek boczny"
 
 msgid "Delete this note?"
 msgstr "Usunąć tę notatkę?"

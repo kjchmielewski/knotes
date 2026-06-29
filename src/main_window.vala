@@ -2,10 +2,17 @@ namespace Knotes {
 
     [GtkTemplate(ui = "/com/knotes/app/main_window.ui")]
     public class MainWindow : Adw.ApplicationWindow {
+        private const int DEFAULT_SIDEBAR_WIDTH = 250;
+        private const int COMPACT_SIDEBAR_WIDTH = 64;
+        private const int MIN_EXPANDED_SIDEBAR_WIDTH = 160;
+        private const string SIDEBAR_TOGGLE_ICON_NAME = "sidebar-show-symbolic";
+
         [GtkChild]
         private unowned Gtk.Paned main_paned;
         [GtkChild]
         private unowned Gtk.Button header_new_button;
+        [GtkChild]
+        private unowned Gtk.ToggleButton sidebar_toggle_button;
         [GtkChild]
         private unowned Gtk.MenuButton header_menu_button;
 
@@ -20,6 +27,9 @@ namespace Knotes {
 
         private NoteRepository repository;
         private NoteListBox note_list;
+        private Gtk.Box sidebar;
+        private int expanded_sidebar_width = DEFAULT_SIDEBAR_WIDTH;
+        private bool is_sidebar_expanded = true;
         private string? current_note_id = null;
         private uint save_timeout_id = 0;
 
@@ -35,19 +45,21 @@ namespace Knotes {
             setup_header_menu();
 
             // --- Sidebar ---
-            var sidebar = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
+            sidebar = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
             sidebar.add_css_class("navigation-sidebar");
-            sidebar.set_size_request(250, -1);
+            sidebar.set_size_request(DEFAULT_SIDEBAR_WIDTH, -1);
 
             note_list = new NoteListBox(repository);
             sidebar.append(note_list);
 
             main_paned.set_start_child(sidebar);
-
+            main_paned.position = DEFAULT_SIDEBAR_WIDTH;
         }
 
         private void connect_signals() {
             note_list.note_selected.connect(on_note_selected);
+            sidebar_toggle_button.toggled.connect(on_sidebar_toggle);
+            main_paned.notify["position"].connect(on_sidebar_position_changed);
             header_new_button.clicked.connect(on_new_note);
             delete_button.clicked.connect(on_delete_note);
             title_entry.changed.connect(on_note_modified);
@@ -58,6 +70,40 @@ namespace Knotes {
             var menu = new GLib.Menu();
             menu.append(_("Quit"), "app.quit");
             header_menu_button.menu_model = menu;
+        }
+
+        private void on_sidebar_toggle() {
+            set_sidebar_expanded(sidebar_toggle_button.active);
+        }
+
+        private void set_sidebar_expanded(bool expanded) {
+            if (!expanded && is_sidebar_expanded) {
+                remember_expanded_sidebar_width();
+            }
+
+            is_sidebar_expanded = expanded;
+            note_list.compact = !expanded;
+            sidebar.set_size_request(expanded ? MIN_EXPANDED_SIDEBAR_WIDTH : COMPACT_SIDEBAR_WIDTH, -1);
+            main_paned.position = expanded ? expanded_sidebar_width : COMPACT_SIDEBAR_WIDTH;
+            sidebar_toggle_button.icon_name = SIDEBAR_TOGGLE_ICON_NAME;
+            sidebar_toggle_button.tooltip_text = expanded ? _("Collapse sidebar") : _("Expand sidebar");
+        }
+
+        private void on_sidebar_position_changed() {
+            if (is_sidebar_expanded) {
+                remember_expanded_sidebar_width();
+                return;
+            }
+
+            if (main_paned.position != COMPACT_SIDEBAR_WIDTH) {
+                main_paned.position = COMPACT_SIDEBAR_WIDTH;
+            }
+        }
+
+        private void remember_expanded_sidebar_width() {
+            if (main_paned.position >= MIN_EXPANDED_SIDEBAR_WIDTH) {
+                expanded_sidebar_width = main_paned.position;
+            }
         }
 
         public void restore_from_tray() {
@@ -97,7 +143,7 @@ namespace Knotes {
         }
 
         private void on_note_modified() {
-            if (current_note_id == null) return;
+            if (current_note_id == null)return;
 
             if (save_timeout_id > 0) {
                 Source.remove(save_timeout_id);
@@ -112,10 +158,10 @@ namespace Knotes {
         }
 
         private void save_current_note() {
-            if (current_note_id == null) return;
+            if (current_note_id == null)return;
 
             var note = repository.load_note(current_note_id);
-            if (note == null) return;
+            if (note == null)return;
 
             var new_title = title_entry.text;
             var new_content = content_view.buffer.text;
@@ -135,10 +181,10 @@ namespace Knotes {
         }
 
         private void on_delete_note() {
-            if (current_note_id == null) return;
+            if (current_note_id == null)return;
 
             var dialog = new Gtk.AlertDialog(
-                _("Delete this note?")
+                                             _("Delete this note?")
             );
             dialog.detail = _("This action cannot be undone.");
             dialog.buttons = { _("Cancel"), _("Delete") };

@@ -5,3 +5,29 @@ window {
 list row:selected {
     background-color: #4f94cd;
 }
+
+.compact-note-list {
+    background: transparent;
+}
+
+.compact-note-list row {
+    padding: 6px;
+}
+
+.compact-note-list row:selected {
+    background-color: transparent;
+}
+
+.compact-note-avatar {
+    min-width: 36px;
+    min-height: 36px;
+    border-radius: 999px;
+    background-color: alpha(#4f94cd, 0.18);
+    color: #1d4f73;
+    font-weight: 700;
+}
+
+.compact-note-list row:selected .compact-note-avatar {
+    background-color: #4f94cd;
+    color: white;
+}
