@@ -30,7 +30,7 @@ namespace Knotes {
         public CompactNoteRow(Note note) {
             Object(note_id: note.id);
 
-            avatar_label = new Gtk.Label(initial_for_title(note.title));
+            avatar_label = new Gtk.Label(avatar_text_for_title(note.title));
             avatar_label.add_css_class("compact-note-avatar");
             avatar_label.halign = Gtk.Align.CENTER;
             avatar_label.valign = Gtk.Align.CENTER;
@@ -44,18 +44,25 @@ namespace Knotes {
         }
 
         public void update(Note note) {
-            avatar_label.label = initial_for_title(note.title);
+            avatar_label.label = avatar_text_for_title(note.title);
             tooltip_text = note.title;
         }
 
-        private static string initial_for_title(string title) {
+        private static string avatar_text_for_title(string title) {
             var trimmed_title = title.strip();
             if (trimmed_title.length == 0) {
                 return "?";
             }
 
-            var first_character = trimmed_title.get_char(0);
-            return first_character.toupper().to_string();
+            var avatar_text = new StringBuilder();
+            var cursor = trimmed_title;
+            for (var i = 0; i < 2 && cursor.length > 0; i++) {
+                var character = cursor.get_char(0);
+                avatar_text.append_unichar(character.toupper());
+                cursor = cursor.next_char();
+            }
+
+            return avatar_text.str;
         }
     }
 
