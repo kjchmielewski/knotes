@@ -112,6 +112,10 @@ namespace Knotes {
             present();
         }
 
+        public bool should_hide_to_tray() {
+            return visible && !is_suspended();
+        }
+
         /**
          * Really close the window (called from tray "Quit" action).
          */

@@ -45,7 +45,7 @@ resources = gnome.compile_resources(
 dependencies = [
     dependency('glib-2.0'),
     dependency('gio-2.0'),
-    dependency('gtk4'),
+    dependency('gtk4', version: '>= 4.12'),
     dependency('libadwaita-1'),
     dependency('cairo'),
     dependency('gdk-pixbuf-2.0'),

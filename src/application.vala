@@ -91,10 +91,10 @@ namespace Knotes {
         private bool setup_tray() {
             tray_manager = new TrayManager();
             tray_manager.toggle_window.connect(() => {
-                if (main_window == null || !main_window.visible) {
-                    show_main_window();
+                if (main_window != null && main_window.should_hide_to_tray()) {
+                    main_window.set_visible(false);
                 } else {
-                    main_window.hide();
+                    show_main_window();
                 }
             });
             tray_manager.quit_app.connect(() => {
