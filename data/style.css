@@ -3,7 +3,16 @@ window {
 }
 
 list row:selected {
-    background-color: #4f94cd;
+    background-color: @theme_selected_bg_color;
+    color: @theme_selected_fg_color;
+}
+
+.boxed-list, row {
+    border-radius: 0;
+}
+
+.boxed-list {
+    background-color: transparent;
 }
 
 .compact-note-list {
@@ -22,12 +31,12 @@ list row:selected {
     min-width: 36px;
     min-height: 36px;
     border-radius: 999px;
-    background-color: alpha(#4f94cd, 0.18);
-    color: #1d4f73;
+    background-color: alpha(@accent_bg_color, 0.28);
+    color: @window_fg_color;
     font-weight: 700;
 }
 
 .compact-note-list row:selected .compact-note-avatar {
-    background-color: #4f94cd;
-    color: white;
+    background-color: @theme_selected_bg_color;
+    color: @theme_selected_fg_color;
 }

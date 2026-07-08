@@ -17,7 +17,7 @@
   <!-- Pen/nib icon overlay -->
   <g transform="translate(80, 12) rotate(25)">
     <rect x="0" y="0" width="8" height="36" rx="2" fill="#e74c3c" stroke="#c0392b" stroke-width="1"/>
-    <polygon points="2,36 6,36 8,44 0,44" fill="#c0392b"/>
+    <polygon points="0,36 7,36 5,44 3,44" fill="#c0392b"/>
     <circle cx="4" cy="4" r="1.5" fill="#f8f8f8"/>
   </g>
 </svg>
