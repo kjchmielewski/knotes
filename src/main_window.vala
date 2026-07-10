@@ -9,6 +9,8 @@ namespace Knotes {
         private const int COMPACT_SIDEBAR_WIDTH = 64;
         private const int MIN_EXPANDED_SIDEBAR_WIDTH = 160;
         private const string SIDEBAR_TOGGLE_ICON_NAME = "sidebar-show-symbolic";
+        private const string SOURCE_STYLE_SCHEME_LIGHT = "Adwaita";
+        private const string SOURCE_STYLE_SCHEME_DARK = "Adwaita-dark";
 
         [GtkChild]
         private unowned Gtk.Paned main_paned;
@@ -82,6 +84,28 @@ namespace Knotes {
 
             source_buffer.language = language;
             source_buffer.highlight_syntax = true;
+
+            var style_manager = Adw.StyleManager.get_default();
+            style_manager.notify["dark"].connect(() => update_editor_style_scheme());
+            update_editor_style_scheme();
+        }
+
+        private void update_editor_style_scheme() {
+            var source_buffer = content_view.buffer as GtkSource.Buffer;
+            if (source_buffer == null) {
+                warning("Markdown editor was created without a GtkSourceBuffer");
+                return;
+            }
+
+            var style_manager = Adw.StyleManager.get_default();
+            var scheme_id = style_manager.dark ? SOURCE_STYLE_SCHEME_DARK : SOURCE_STYLE_SCHEME_LIGHT;
+            var scheme = GtkSource.StyleSchemeManager.get_default().get_scheme(scheme_id);
+            if (scheme == null) {
+                warning("GtkSourceView style scheme '%s' is unavailable", scheme_id);
+                return;
+            }
+
+            source_buffer.style_scheme = scheme;
         }
 
         private void setup_markdown_preview() {
