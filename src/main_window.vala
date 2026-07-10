@@ -1,5 +1,8 @@
 namespace Knotes {
 
+    [CCode (cname = "cmark_markdown_to_html", cheader_filename = "cmark.h")]
+    private static extern string markdown_to_html(string markdown, size_t length, int options);
+
     [GtkTemplate(ui = "/com/knotes/app/main_window.ui")]
     public class MainWindow : Adw.ApplicationWindow {
         private const int DEFAULT_SIDEBAR_WIDTH = 250;
@@ -23,6 +26,12 @@ namespace Knotes {
         [GtkChild]
         private unowned GtkSource.View content_view;
         [GtkChild]
+        private unowned Gtk.Stack content_stack;
+        [GtkChild]
+        private unowned WebKit.WebView markdown_preview;
+        [GtkChild]
+        private unowned Gtk.ToggleButton preview_toggle_button;
+        [GtkChild]
         private unowned Gtk.Button delete_button;
 
         private NoteRepository repository;
@@ -44,6 +53,7 @@ namespace Knotes {
         private void build_ui() {
             setup_header_menu();
             setup_markdown_editor();
+            setup_markdown_preview();
 
             // --- Sidebar ---
             sidebar = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
@@ -74,12 +84,33 @@ namespace Knotes {
             source_buffer.highlight_syntax = true;
         }
 
+        private void setup_markdown_preview() {
+            markdown_preview.get_settings().enable_javascript = false;
+            markdown_preview.decide_policy.connect(on_preview_decide_policy);
+        }
+
+        private bool on_preview_decide_policy(WebKit.PolicyDecision decision, WebKit.PolicyDecisionType type) {
+            if (type != WebKit.PolicyDecisionType.NAVIGATION_ACTION) {
+                return false;
+            }
+
+            var navigation_decision = decision as WebKit.NavigationPolicyDecision;
+            if (navigation_decision == null ||
+                navigation_decision.navigation_action.get_navigation_type() == WebKit.NavigationType.OTHER) {
+                return false;
+            }
+
+            decision.ignore();
+            return true;
+        }
+
         private void connect_signals() {
             note_list.note_selected.connect(on_note_selected);
             sidebar_toggle_button.toggled.connect(on_sidebar_toggle);
             main_paned.notify["position"].connect(on_sidebar_position_changed);
             header_new_button.clicked.connect(on_new_note);
             delete_button.clicked.connect(on_delete_note);
+            preview_toggle_button.toggled.connect(on_preview_toggled);
             title_entry.changed.connect(on_note_modified);
             content_view.buffer.changed.connect(on_note_modified);
         }
@@ -161,7 +192,61 @@ namespace Knotes {
         private void show_note(Note note) {
             title_entry.text = note.title;
             content_view.buffer.text = note.content;
+            update_markdown_preview();
             editor_stack.set_visible_child_name("editor");
+        }
+
+        private void on_preview_toggled() {
+            if (preview_toggle_button.active) {
+                update_markdown_preview();
+                content_stack.set_visible_child_name("preview");
+                preview_toggle_button.tooltip_text = _("Edit Markdown");
+                return;
+            }
+
+            content_stack.set_visible_child_name("editor");
+            preview_toggle_button.tooltip_text = _("Preview Markdown");
+            content_view.grab_focus();
+        }
+
+        private void update_markdown_preview() {
+            var markdown = content_view.buffer.text;
+            var rendered_markdown = markdown_to_html(markdown, markdown.length, 0);
+            markdown_preview.load_html(build_preview_document(rendered_markdown), null);
+        }
+
+        private string build_preview_document(string rendered_markdown) {
+            return """
+                <!doctype html>
+                <html>
+                  <head>
+                    <meta charset="utf-8">
+                    <meta name="color-scheme" content="light dark">
+                    <meta http-equiv="Content-Security-Policy"
+                          content="default-src 'none'; style-src 'unsafe-inline'; img-src data:">
+                    <style>
+                      :root { color-scheme: light dark; }
+                      body {
+                        box-sizing: border-box;
+                        max-width: 52rem;
+                        margin: 0 auto;
+                        padding: 1rem;
+                        font: 1rem/1.55 system-ui, sans-serif;
+                        overflow-wrap: anywhere;
+                      }
+                      pre, code { font-family: monospace; }
+                      pre { padding: .75rem; overflow-x: auto; border-radius: .5rem; background: rgba(127, 127, 127, .14); }
+                      code { background: rgba(127, 127, 127, .14); }
+                      pre code { background: transparent; }
+                      blockquote { margin-left: 0; padding-left: 1rem; border-left: .25rem solid rgba(127, 127, 127, .45); }
+                      img { max-width: 100%%; }
+                      table { border-collapse: collapse; }
+                      th, td { padding: .35rem .6rem; border: 1px solid rgba(127, 127, 127, .45); }
+                    </style>
+                  </head>
+                  <body>%s</body>
+                </html>
+                """.printf(rendered_markdown);
         }
 
         private void on_note_modified() {

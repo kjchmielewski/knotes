@@ -1,6 +1,7 @@
 using Gtk 4.0;
 using Adw 1;
 using GtkSource 5;
+using WebKit 6.0;
 
 translation-domain "knotes";
 
@@ -73,6 +74,12 @@ template $KnotesMainWindow : Adw.ApplicationWindow {
                 styles ["title-2", "flat"]
               }
 
+              Gtk.ToggleButton preview_toggle_button {
+                icon-name: "view-reveal-symbolic";
+                tooltip-text: _("Preview Markdown");
+                styles ["flat"]
+              }
+
               Gtk.Button delete_button {
                 icon-name: "user-trash-symbolic";
                 tooltip-text: _("Delete note");
@@ -84,18 +91,32 @@ template $KnotesMainWindow : Adw.ApplicationWindow {
               orientation: horizontal;
             }
 
-            Gtk.ScrolledWindow {
+            Gtk.Stack content_stack {
               hexpand: true;
               vexpand: true;
+              transition-type: crossfade;
 
-              GtkSource.View content_view {
-                hexpand: true;
-                vexpand: true;
-                wrap-mode: word_char;
-                top-margin: 8;
-                right-margin: 8;
-                bottom-margin: 8;
-                left-margin: 8;
+              Gtk.StackPage {
+                name: "editor";
+                child: Gtk.ScrolledWindow {
+                  GtkSource.View content_view {
+                    hexpand: true;
+                    vexpand: true;
+                    wrap-mode: word_char;
+                    top-margin: 8;
+                    right-margin: 8;
+                    bottom-margin: 8;
+                    left-margin: 8;
+                  }
+                };
+              }
+
+              Gtk.StackPage {
+                name: "preview";
+                child: WebKit.WebView markdown_preview {
+                  hexpand: true;
+                  vexpand: true;
+                };
               }
             }
           };

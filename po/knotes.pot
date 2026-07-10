@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: knotes\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-29 14:16+0200\n"
+"POT-Creation-Date: 2026-07-10 18:11+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,59 +17,67 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: data/main_window.blp:17 src/main_window.vala:72
+#: data/main_window.blp:19 src/main_window.vala:138
 msgid "Collapse sidebar"
 msgstr ""
 
-#: data/main_window.blp:25
+#: data/main_window.blp:27
 msgid "Menu"
 msgstr ""
 
-#: data/main_window.blp:32
+#: data/main_window.blp:34
 msgid "New note"
 msgstr ""
 
-#: data/main_window.blp:47
+#: data/main_window.blp:49
 msgid "Select a note or create a new one"
 msgstr ""
 
-#: data/main_window.blp:71
+#: data/main_window.blp:73
 msgid "Note title…"
 msgstr ""
 
-#: data/main_window.blp:77
+#: data/main_window.blp:79
 msgid "Delete note"
+msgstr ""
+
+#: data/main_window.blp:85 src/main_window.vala:208
+msgid "Preview Markdown"
 msgstr ""
 
 #: data/note_list_box.blp:19
 msgid "Search notes…"
 msgstr ""
 
-#: src/main_window.vala:63 src/tray_manager.vala:238
+#: src/main_window.vala:120 src/tray_manager.vala:238
 msgid "Quit"
 msgstr ""
 
-#: src/main_window.vala:72
+#: src/main_window.vala:138
 msgid "Expand sidebar"
 msgstr ""
 
-#: src/main_window.vala:153
+#: src/main_window.vala:203
+msgid "Edit Markdown"
+msgstr ""
+
+#: src/main_window.vala:294
 msgid "Delete this note?"
 msgstr ""
 
-#: src/main_window.vala:155
+#: src/main_window.vala:296
 msgid "This action cannot be undone."
 msgstr ""
 
-#: src/main_window.vala:156
+#: src/main_window.vala:297
 msgid "Cancel"
 msgstr ""
 
-#: src/main_window.vala:156
+#: src/main_window.vala:297
 msgid "Delete"
 msgstr ""
 
-#: src/main_window.vala:177
+#: src/main_window.vala:318
 msgid "Untitled"
 msgstr ""
 

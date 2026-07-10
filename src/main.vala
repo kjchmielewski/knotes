@@ -2,6 +2,7 @@ namespace Knotes {
 
     public static int main(string[] args) {
         GtkSource.init();
+        typeof(WebKit.WebView).ensure();
 
         Intl.setlocale(LocaleCategory.ALL, "");
         var locale_dir = Environment.get_variable("KNOTES_LOCALE_DIR") ?? LOCALE_DIR;

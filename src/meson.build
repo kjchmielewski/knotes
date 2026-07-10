@@ -11,6 +11,9 @@ sources = files(
 
 sources += config_file
 
+cc = meson.get_compiler('c')
+cmark_dependency = cc.find_library('cmark', required: true)
+
 blueprint_compiler = find_program('blueprint-compiler')
 
 main_window_ui = custom_target(
@@ -47,11 +50,13 @@ dependencies = [
     dependency('gio-2.0'),
     dependency('gtk4', version: '>= 4.12'),
     dependency('gtksourceview-5'),
+    dependency('webkitgtk-6.0'),
     dependency('libadwaita-1'),
     dependency('cairo'),
     dependency('gdk-pixbuf-2.0'),
     dependency('json-glib-1.0'),
-    dependency('gee-0.8')
+    dependency('gee-0.8'),
+    cmark_dependency
 ]
 
 executable(
