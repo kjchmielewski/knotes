@@ -1,5 +1,6 @@
 using Gtk 4.0;
 using Adw 1;
+using GtkSource 5;
 
 translation-domain "knotes";
 
@@ -87,7 +88,7 @@ template $KnotesMainWindow : Adw.ApplicationWindow {
               hexpand: true;
               vexpand: true;
 
-              Gtk.TextView content_view {
+              GtkSource.View content_view {
                 hexpand: true;
                 vexpand: true;
                 wrap-mode: word_char;

@@ -21,7 +21,7 @@ namespace Knotes {
         [GtkChild]
         private unowned Gtk.Entry title_entry;
         [GtkChild]
-        private unowned Gtk.TextView content_view;
+        private unowned GtkSource.View content_view;
         [GtkChild]
         private unowned Gtk.Button delete_button;
 
@@ -43,6 +43,7 @@ namespace Knotes {
 
         private void build_ui() {
             setup_header_menu();
+            setup_markdown_editor();
 
             // --- Sidebar ---
             sidebar = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
@@ -54,6 +55,23 @@ namespace Knotes {
 
             main_paned.set_start_child(sidebar);
             main_paned.position = DEFAULT_SIDEBAR_WIDTH;
+        }
+
+        private void setup_markdown_editor() {
+            var language = GtkSource.LanguageManager.get_default().get_language("markdown");
+            if (language == null) {
+                warning("GtkSourceView Markdown language definition is unavailable");
+                return;
+            }
+
+            var source_buffer = content_view.buffer as GtkSource.Buffer;
+            if (source_buffer == null) {
+                warning("Markdown editor was created without a GtkSourceBuffer");
+                return;
+            }
+
+            source_buffer.language = language;
+            source_buffer.highlight_syntax = true;
         }
 
         private void connect_signals() {

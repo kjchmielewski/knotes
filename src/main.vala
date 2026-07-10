@@ -1,6 +1,8 @@
 namespace Knotes {
 
     public static int main(string[] args) {
+        GtkSource.init();
+
         Intl.setlocale(LocaleCategory.ALL, "");
         var locale_dir = Environment.get_variable("KNOTES_LOCALE_DIR") ?? LOCALE_DIR;
         Intl.bindtextdomain(GETTEXT_PACKAGE, locale_dir);
