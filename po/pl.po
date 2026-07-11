@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: knotes 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-10 18:11+0200\n"
+"POT-Creation-Date: 2026-07-11 00:32+0200\n"
 "PO-Revision-Date: 2026-06-21 00:00+0000\n"
 "Last-Translator: Krzysztof Chmielewski\n"
 "Language-Team: Polish\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 "
 "|| n%100>14) ? 1 : 2);\n"
 
-#: data/main_window.blp:19 src/main_window.vala:138
+#: data/main_window.blp:19 src/main_window.vala:178
 msgid "Collapse sidebar"
 msgstr "Zwiń pasek boczny"
 
@@ -37,47 +37,55 @@ msgstr "Wybierz notatkę lub utwórz nową"
 msgid "Note title…"
 msgstr "Tytuł notatki…"
 
-#: data/main_window.blp:79
-msgid "Delete note"
-msgstr "Usuń notatkę"
+#: data/main_window.blp:79 src/main_window.vala:161
+msgid "Plain text mode"
+msgstr "Tryb zwykłego tekstu"
 
-#: data/main_window.blp:85 src/main_window.vala:208
+#: data/main_window.blp:85 src/main_window.vala:248
 msgid "Preview Markdown"
 msgstr "Podgląd Markdown"
+
+#: data/main_window.blp:91
+msgid "Delete note"
+msgstr "Usuń notatkę"
 
 #: data/note_list_box.blp:19
 msgid "Search notes…"
 msgstr "Szukaj notatek…"
 
-#: src/main_window.vala:120 src/tray_manager.vala:238
+#: src/main_window.vala:147 src/tray_manager.vala:238
 msgid "Quit"
 msgstr "Zakończ"
 
-#: src/main_window.vala:138
+#: src/main_window.vala:160
+msgid "Enable Markdown highlighting"
+msgstr "Włącz podświetlanie Markdown"
+
+#: src/main_window.vala:178
 msgid "Expand sidebar"
 msgstr "Rozwiń pasek boczny"
 
-#: src/main_window.vala:203
+#: src/main_window.vala:243
 msgid "Edit Markdown"
 msgstr "Edytuj Markdown"
 
-#: src/main_window.vala:294
+#: src/main_window.vala:334
 msgid "Delete this note?"
 msgstr "Usunąć tę notatkę?"
 
-#: src/main_window.vala:296
+#: src/main_window.vala:336
 msgid "This action cannot be undone."
 msgstr "Tej operacji nie można cofnąć."
 
-#: src/main_window.vala:297
+#: src/main_window.vala:337
 msgid "Cancel"
 msgstr "Anuluj"
 
-#: src/main_window.vala:297
+#: src/main_window.vala:337
 msgid "Delete"
 msgstr "Usuń"
 
-#: src/main_window.vala:318
+#: src/main_window.vala:358
 msgid "Untitled"
 msgstr "Bez tytułu"
 

@@ -5,6 +5,8 @@
     <file preprocess="xml-stripblanks">note_list_box.ui</file>
     <file preprocess="xml-stripblanks">note_row.ui</file>
     <file>icons/com.knotes.app.svg</file>
+    <file>icons/format-text-rich-symbolic-light.svg</file>
+    <file>icons/format-text-rich-symbolic-dark.svg</file>
     <file>style.css</file>
   </gresource>
 </gresources>

@@ -11,6 +11,8 @@ namespace Knotes {
         private const string SIDEBAR_TOGGLE_ICON_NAME = "sidebar-show-symbolic";
         private const string SOURCE_STYLE_SCHEME_LIGHT = "Adwaita";
         private const string SOURCE_STYLE_SCHEME_DARK = "Adwaita-dark";
+        private const string PLAIN_TEXT_ICON_LIGHT_RESOURCE = "/com/knotes/app/icons/format-text-rich-symbolic-light.svg";
+        private const string PLAIN_TEXT_ICON_DARK_RESOURCE = "/com/knotes/app/icons/format-text-rich-symbolic-dark.svg";
 
         [GtkChild]
         private unowned Gtk.Paned main_paned;
@@ -31,6 +33,10 @@ namespace Knotes {
         private unowned Gtk.Stack content_stack;
         [GtkChild]
         private unowned WebKit.WebView markdown_preview;
+        [GtkChild]
+        private unowned Gtk.ToggleButton plain_text_toggle_button;
+        [GtkChild]
+        private unowned Gtk.Image plain_text_icon;
         [GtkChild]
         private unowned Gtk.ToggleButton preview_toggle_button;
         [GtkChild]
@@ -98,6 +104,10 @@ namespace Knotes {
             }
 
             var style_manager = Adw.StyleManager.get_default();
+            plain_text_icon.resource = style_manager.dark
+                ? PLAIN_TEXT_ICON_DARK_RESOURCE
+                : PLAIN_TEXT_ICON_LIGHT_RESOURCE;
+
             var scheme_id = style_manager.dark ? SOURCE_STYLE_SCHEME_DARK : SOURCE_STYLE_SCHEME_LIGHT;
             var scheme = GtkSource.StyleSchemeManager.get_default().get_scheme(scheme_id);
             if (scheme == null) {
@@ -134,6 +144,7 @@ namespace Knotes {
             main_paned.notify["position"].connect(on_sidebar_position_changed);
             header_new_button.clicked.connect(on_new_note);
             delete_button.clicked.connect(on_delete_note);
+            plain_text_toggle_button.toggled.connect(on_plain_text_toggled);
             preview_toggle_button.toggled.connect(on_preview_toggled);
             title_entry.changed.connect(on_note_modified);
             content_view.buffer.changed.connect(on_note_modified);
@@ -143,6 +154,19 @@ namespace Knotes {
             var menu = new GLib.Menu();
             menu.append(_("Quit"), "app.quit");
             header_menu_button.menu_model = menu;
+        }
+
+        private void on_plain_text_toggled() {
+            var source_buffer = content_view.buffer as GtkSource.Buffer;
+            if (source_buffer == null) {
+                warning("Markdown editor was created without a GtkSourceBuffer");
+                return;
+            }
+
+            source_buffer.highlight_syntax = !plain_text_toggle_button.active;
+            plain_text_toggle_button.tooltip_text = plain_text_toggle_button.active
+                ? _("Enable Markdown highlighting")
+                : _("Plain text mode");
         }
 
         private void on_sidebar_toggle() {

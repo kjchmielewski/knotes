@@ -74,6 +74,15 @@ template $KnotesMainWindow : Adw.ApplicationWindow {
                 styles ["title-2", "flat"]
               }
 
+              Gtk.ToggleButton plain_text_toggle_button {
+                tooltip-text: _("Plain text mode");
+                styles ["flat"]
+
+                child: Gtk.Image plain_text_icon {
+                  resource: "/com/knotes/app/icons/format-text-rich-symbolic-light.svg";
+                };
+              }
+
               Gtk.ToggleButton preview_toggle_button {
                 icon-name: "view-reveal-symbolic";
                 tooltip-text: _("Preview Markdown");
