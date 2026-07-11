@@ -34,9 +34,9 @@ namespace Knotes {
         [GtkChild]
         private unowned WebKit.WebView markdown_preview;
         [GtkChild]
-        private unowned Gtk.ToggleButton plain_text_toggle_button;
+        private unowned Gtk.ToggleButton markdown_highlighting_toggle_button;
         [GtkChild]
-        private unowned Gtk.Image plain_text_icon;
+        private unowned Gtk.Image markdown_highlighting_icon;
         [GtkChild]
         private unowned Gtk.ToggleButton preview_toggle_button;
         [GtkChild]
@@ -89,7 +89,7 @@ namespace Knotes {
             }
 
             source_buffer.language = language;
-            source_buffer.highlight_syntax = true;
+            source_buffer.highlight_syntax = false;
 
             var style_manager = Adw.StyleManager.get_default();
             style_manager.notify["dark"].connect(() => update_editor_style_scheme());
@@ -104,7 +104,7 @@ namespace Knotes {
             }
 
             var style_manager = Adw.StyleManager.get_default();
-            plain_text_icon.resource = style_manager.dark
+            markdown_highlighting_icon.resource = style_manager.dark
                 ? PLAIN_TEXT_ICON_DARK_RESOURCE
                 : PLAIN_TEXT_ICON_LIGHT_RESOURCE;
 
@@ -144,7 +144,7 @@ namespace Knotes {
             main_paned.notify["position"].connect(on_sidebar_position_changed);
             header_new_button.clicked.connect(on_new_note);
             delete_button.clicked.connect(on_delete_note);
-            plain_text_toggle_button.toggled.connect(on_plain_text_toggled);
+            markdown_highlighting_toggle_button.toggled.connect(on_markdown_highlighting_toggled);
             preview_toggle_button.toggled.connect(on_preview_toggled);
             title_entry.changed.connect(on_note_modified);
             content_view.buffer.changed.connect(on_note_modified);
@@ -156,17 +156,17 @@ namespace Knotes {
             header_menu_button.menu_model = menu;
         }
 
-        private void on_plain_text_toggled() {
+        private void on_markdown_highlighting_toggled() {
             var source_buffer = content_view.buffer as GtkSource.Buffer;
             if (source_buffer == null) {
                 warning("Markdown editor was created without a GtkSourceBuffer");
                 return;
             }
 
-            source_buffer.highlight_syntax = !plain_text_toggle_button.active;
-            plain_text_toggle_button.tooltip_text = plain_text_toggle_button.active
-                ? _("Enable Markdown highlighting")
-                : _("Plain text mode");
+            source_buffer.highlight_syntax = markdown_highlighting_toggle_button.active;
+            markdown_highlighting_toggle_button.tooltip_text = markdown_highlighting_toggle_button.active
+                ? _("Plain text mode")
+                : _("Enable Markdown highlighting");
         }
 
         private void on_sidebar_toggle() {

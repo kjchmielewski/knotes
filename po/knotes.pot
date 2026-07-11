@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: knotes\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-11 00:32+0200\n"
+"POT-Creation-Date: 2026-07-11 13:29+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: data/main_window.blp:19 src/main_window.vala:178
+#: data/main_window.blp:19 src/main_window.vala:186
 msgid "Collapse sidebar"
 msgstr ""
 
@@ -37,15 +37,15 @@ msgstr ""
 msgid "Note title…"
 msgstr ""
 
-#: data/main_window.blp:79 src/main_window.vala:161
-msgid "Plain text mode"
+#: data/main_window.blp:78 src/main_window.vala:169
+msgid "Enable Markdown highlighting"
 msgstr ""
 
-#: data/main_window.blp:85 src/main_window.vala:248
+#: data/main_window.blp:88 src/main_window.vala:256
 msgid "Preview Markdown"
 msgstr ""
 
-#: data/main_window.blp:91
+#: data/main_window.blp:94
 msgid "Delete note"
 msgstr ""
 
@@ -53,39 +53,39 @@ msgstr ""
 msgid "Search notes…"
 msgstr ""
 
-#: src/main_window.vala:147 src/tray_manager.vala:238
+#: src/main_window.vala:155 src/tray_manager.vala:238
 msgid "Quit"
 msgstr ""
 
-#: src/main_window.vala:160
-msgid "Enable Markdown highlighting"
+#: src/main_window.vala:168
+msgid "Plain text mode"
 msgstr ""
 
-#: src/main_window.vala:178
+#: src/main_window.vala:186
 msgid "Expand sidebar"
 msgstr ""
 
-#: src/main_window.vala:243
+#: src/main_window.vala:251
 msgid "Edit Markdown"
 msgstr ""
 
-#: src/main_window.vala:334
+#: src/main_window.vala:342
 msgid "Delete this note?"
 msgstr ""
 
-#: src/main_window.vala:336
+#: src/main_window.vala:344
 msgid "This action cannot be undone."
 msgstr ""
 
-#: src/main_window.vala:337
+#: src/main_window.vala:345
 msgid "Cancel"
 msgstr ""
 
-#: src/main_window.vala:337
+#: src/main_window.vala:345
 msgid "Delete"
 msgstr ""
 
-#: src/main_window.vala:358
+#: src/main_window.vala:366
 msgid "Untitled"
 msgstr ""
 

@@ -74,11 +74,11 @@ template $KnotesMainWindow : Adw.ApplicationWindow {
                 styles ["title-2", "flat"]
               }
 
-              Gtk.ToggleButton plain_text_toggle_button {
-                tooltip-text: _("Plain text mode");
+              Gtk.ToggleButton markdown_highlighting_toggle_button {
+                tooltip-text: _("Enable Markdown highlighting");
                 styles ["flat"]
 
-                child: Gtk.Image plain_text_icon {
+                child: Gtk.Image markdown_highlighting_icon {
                   resource: "/com/knotes/app/icons/format-text-rich-symbolic-light.svg";
                 };
               }

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: knotes 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-11 00:32+0200\n"
+"POT-Creation-Date: 2026-07-11 13:29+0200\n"
 "PO-Revision-Date: 2026-06-21 00:00+0000\n"
 "Last-Translator: Krzysztof Chmielewski\n"
 "Language-Team: Polish\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 "
 "|| n%100>14) ? 1 : 2);\n"
 
-#: data/main_window.blp:19 src/main_window.vala:178
+#: data/main_window.blp:19 src/main_window.vala:186
 msgid "Collapse sidebar"
 msgstr "Zwiń pasek boczny"
 
@@ -37,15 +37,15 @@ msgstr "Wybierz notatkę lub utwórz nową"
 msgid "Note title…"
 msgstr "Tytuł notatki…"
 
-#: data/main_window.blp:79 src/main_window.vala:161
-msgid "Plain text mode"
-msgstr "Tryb zwykłego tekstu"
+#: data/main_window.blp:78 src/main_window.vala:169
+msgid "Enable Markdown highlighting"
+msgstr "Włącz podświetlanie Markdown"
 
-#: data/main_window.blp:85 src/main_window.vala:248
+#: data/main_window.blp:88 src/main_window.vala:256
 msgid "Preview Markdown"
 msgstr "Podgląd Markdown"
 
-#: data/main_window.blp:91
+#: data/main_window.blp:94
 msgid "Delete note"
 msgstr "Usuń notatkę"
 
@@ -53,39 +53,39 @@ msgstr "Usuń notatkę"
 msgid "Search notes…"
 msgstr "Szukaj notatek…"
 
-#: src/main_window.vala:147 src/tray_manager.vala:238
+#: src/main_window.vala:155 src/tray_manager.vala:238
 msgid "Quit"
 msgstr "Zakończ"
 
-#: src/main_window.vala:160
-msgid "Enable Markdown highlighting"
-msgstr "Włącz podświetlanie Markdown"
+#: src/main_window.vala:168
+msgid "Plain text mode"
+msgstr "Tryb zwykłego tekstu"
 
-#: src/main_window.vala:178
+#: src/main_window.vala:186
 msgid "Expand sidebar"
 msgstr "Rozwiń pasek boczny"
 
-#: src/main_window.vala:243
+#: src/main_window.vala:251
 msgid "Edit Markdown"
 msgstr "Edytuj Markdown"
 
-#: src/main_window.vala:334
+#: src/main_window.vala:342
 msgid "Delete this note?"
 msgstr "Usunąć tę notatkę?"
 
-#: src/main_window.vala:336
+#: src/main_window.vala:344
 msgid "This action cannot be undone."
 msgstr "Tej operacji nie można cofnąć."
 
-#: src/main_window.vala:337
+#: src/main_window.vala:345
 msgid "Cancel"
 msgstr "Anuluj"
 
-#: src/main_window.vala:337
+#: src/main_window.vala:345
 msgid "Delete"
 msgstr "Usuń"
 
-#: src/main_window.vala:358
+#: src/main_window.vala:366
 msgid "Untitled"
 msgstr "Bez tytułu"
 
