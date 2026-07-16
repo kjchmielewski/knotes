@@ -19,17 +19,30 @@ template $KnotesNoteListBox : Gtk.Box {
           placeholder-text: _("Search notes…");
           margin-start: 8;
           margin-end: 8;
+          margin-top: 8;
           margin-bottom: 4;
         }
 
-        Gtk.ScrolledWindow {
+        Gtk.Expander {
+          expanded: true;
           vexpand: true;
+          margin-start: 8;
+          margin-end: 8;
 
-          Gtk.ListBox list_box {
+          label-widget: Gtk.Button all_notes_button {
+          };
+
+          child: Gtk.ScrolledWindow {
             vexpand: true;
-            selection-mode: single;
-            styles ["boxed-list"]
-          }
+            hscrollbar-policy: never;
+
+            Gtk.Box note_tree_box {
+              orientation: vertical;
+              spacing: 2;
+              margin-start: 16;
+              margin-bottom: 8;
+            }
+          };
         }
       };
     }

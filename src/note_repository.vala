@@ -4,6 +4,7 @@ namespace Knotes {
         private const uint OWN_CHANGE_IGNORE_TIMEOUT_MS = 1000;
 
         private string notes_dir;
+        private string folders_path;
         private FileMonitor monitor;
         private File notes_dir_file;
         private Gee.HashSet<string> own_updated_note_ids;
@@ -21,10 +22,54 @@ namespace Knotes {
                 "notes"
             );
             notes_dir_file = File.new_for_path(notes_dir);
+            folders_path = Path.build_filename(Path.get_dirname(notes_dir), "folders.json");
             own_updated_note_ids = new Gee.HashSet<string>();
             own_deleted_note_ids = new Gee.HashSet<string>();
             ensure_directory();
             setup_monitor();
+        }
+
+        public List<Folder> list_folders() {
+            var folders = new List<Folder>();
+            var file = File.new_for_path(folders_path);
+            if (!file.query_exists()) {
+                return folders;
+            }
+
+            try {
+                var parser = new Json.Parser();
+                parser.load_from_file(folders_path);
+                var array = parser.get_root().get_array();
+                foreach (var element in array.get_elements()) {
+                    var folder = Folder.from_json(element.get_object());
+                    if (folder != null) {
+                        folders.append(folder);
+                    }
+                }
+            } catch (GLib.Error e) {
+                warning("Failed to load folders: %s", e.message);
+            }
+            return folders;
+        }
+
+        public void save_folders(List<Folder> folders) {
+            var array = new Json.Array();
+            foreach (var folder in folders) {
+                var node = new Json.Node(Json.NodeType.OBJECT);
+                node.set_object(folder.to_json());
+                array.add_element(node);
+            }
+
+            var root = new Json.Node(Json.NodeType.ARRAY);
+            root.set_array(array);
+            var generator = new Json.Generator();
+            generator.set_root(root);
+            generator.pretty = true;
+            try {
+                generator.to_file(folders_path);
+            } catch (GLib.Error e) {
+                warning("Failed to save folders: %s", e.message);
+            }
         }
 
         private void ensure_directory() {

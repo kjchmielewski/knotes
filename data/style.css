@@ -7,7 +7,7 @@ list row:selected {
     color: @theme_selected_fg_color;
 }
 
-.boxed-list, row {
+.boxed-list, .folder-note-list, row {
     border-radius: 0;
 }
 
@@ -39,4 +39,18 @@ list row:selected {
 .compact-note-list row:selected .compact-note-avatar {
     background-color: @theme_selected_bg_color;
     color: @theme_selected_fg_color;
+}
+
+.folder-tree-row {
+    padding: 4px 6px;
+    border-radius: 6px;
+    text-align: left;
+}
+
+expander.empty-folder-expander title > arrow {
+    opacity: 0.35;
+}
+
+.folder-note-list {
+    background-color: transparent;
 }

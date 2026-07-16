@@ -19,6 +19,8 @@ namespace Knotes {
         [GtkChild]
         private unowned Gtk.Button header_new_button;
         [GtkChild]
+        private unowned Gtk.Button header_new_folder_button;
+        [GtkChild]
         private unowned Gtk.ToggleButton sidebar_toggle_button;
         [GtkChild]
         private unowned Gtk.MenuButton header_menu_button;
@@ -143,6 +145,7 @@ namespace Knotes {
             sidebar_toggle_button.toggled.connect(on_sidebar_toggle);
             main_paned.notify["position"].connect(on_sidebar_position_changed);
             header_new_button.clicked.connect(on_new_note);
+            header_new_folder_button.clicked.connect(note_list.show_new_folder_dialog);
             delete_button.clicked.connect(on_delete_note);
             markdown_highlighting_toggle_button.toggled.connect(on_markdown_highlighting_toggled);
             preview_toggle_button.toggled.connect(on_preview_toggled);
@@ -363,7 +366,11 @@ namespace Knotes {
         }
 
         private void on_new_note() {
-            var note = new Note.with_new_content(_("Untitled"), "");
+            var note = new Note.with_new_content(
+                _("Untitled"),
+                "",
+                note_list.folder_id_for_new_note()
+            );
             repository.save_note(note);
             note_list.create_note(note);
         }

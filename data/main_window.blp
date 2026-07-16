@@ -34,6 +34,13 @@ template $KnotesMainWindow : Adw.ApplicationWindow {
         tooltip-text: _("New note");
         styles ["flat", "circular"]
       }
+
+      [end]
+      Gtk.Button header_new_folder_button {
+        icon-name: "folder-new-symbolic";
+        tooltip-text: _("New folder");
+        styles ["flat", "circular"]
+      }
     }
 
     content: Gtk.Paned main_paned {

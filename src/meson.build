@@ -4,6 +4,7 @@ sources = files(
     'i18n.vala',
     'main_window.vala',
     'note.vala',
+    'folder.vala',
     'note_repository.vala',
     'note_list_box.vala',
     'tray_manager.vala'
@@ -51,7 +52,7 @@ dependencies = [
     dependency('gtk4', version: '>= 4.12'),
     dependency('gtksourceview-5'),
     dependency('webkitgtk-6.0'),
-    dependency('libadwaita-1'),
+    dependency('libadwaita-1', version: '>= 1.5'),
     dependency('cairo'),
     dependency('gdk-pixbuf-2.0'),
     dependency('json-glib-1.0'),

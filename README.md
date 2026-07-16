@@ -94,6 +94,7 @@ The build runs `gtk-update-icon-cache` after installation so desktop environment
 
 ```
 knotes/
+├── AGENTS.md
 ├── meson.build                # Root build definition
 ├── src/
 │   ├── meson.build            # Source build definition
@@ -110,7 +111,9 @@ knotes/
 │   ├── meson.build            # Data build definition
 │   ├── icons/
 │   │   ├── meson.build        # Icon installation
-│   │   └── com.knotes.app.svg # Application icon (also used for tray)
+│   │   ├── com.knotes.app.svg # Application icon (also used for tray)
+│   │   ├── format-text-rich-symbolic-dark.svg  # Symbolic dark text format icon
+│   │   └── format-text-rich-symbolic-light.svg # Symbolic light text format icon
 │   ├── main_window.blp        # Main window Blueprint template compiled into GResource
 │   ├── note_list_box.blp      # Note list Blueprint template compiled into GResource
 │   ├── note_row.blp           # Note row Blueprint template compiled into GResource
@@ -119,8 +122,11 @@ knotes/
 │   ├── knotes.desktop.in      # Desktop entry
 │   └── knotes.metainfo.xml.in # AppStream metadata
 ├── po/
+│   ├── knotes.pot             # Template for translatable strings
+│   ├── meson.build            # Meson build configuration for translations
 │   ├── LINGUAS                # Enabled translations
 │   ├── POTFILES               # Sources scanned for translatable strings
+│   ├── POTFILES.skip          # Sources to skip during translation scanning
 │   └── pl.po                  # Polish translation
 └── README.md
 ```
