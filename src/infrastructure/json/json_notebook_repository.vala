@@ -1,6 +1,6 @@
 namespace Knotes {
 
-    public class NoteRepository : GLib.Object {
+    public class JsonNotebookRepository : NotebookRepository {
         private const uint OWN_CHANGE_IGNORE_TIMEOUT_MS = 1000;
 
         private string notes_dir;
@@ -10,11 +10,7 @@ namespace Knotes {
         private Gee.HashSet<string> own_updated_note_ids;
         private Gee.HashSet<string> own_deleted_note_ids;
 
-        public signal void note_created(string id);
-        public signal void note_updated(string id);
-        public signal void note_deleted(string id);
-
-        public NoteRepository() {
+        public JsonNotebookRepository() {
             notes_dir = Path.build_path(
                 "/",
                 Environment.get_user_data_dir(),
@@ -29,7 +25,7 @@ namespace Knotes {
             setup_monitor();
         }
 
-        public List<Folder> list_folders() {
+        public override List<Folder> list_folders() {
             var folders = new List<Folder>();
             var file = File.new_for_path(folders_path);
             if (!file.query_exists()) {
@@ -41,7 +37,7 @@ namespace Knotes {
                 parser.load_from_file(folders_path);
                 var array = parser.get_root().get_array();
                 foreach (var element in array.get_elements()) {
-                    var folder = Folder.from_json(element.get_object());
+                    var folder = FolderJsonMapper.from_json(element.get_object());
                     if (folder != null) {
                         folders.append(folder);
                     }
@@ -52,11 +48,11 @@ namespace Knotes {
             return folders;
         }
 
-        public void save_folders(List<Folder> folders) {
+        public override void save_folders(List<Folder> folders) {
             var array = new Json.Array();
             foreach (var folder in folders) {
                 var node = new Json.Node(Json.NodeType.OBJECT);
-                node.set_object(folder.to_json());
+                node.set_object(FolderJsonMapper.to_json(folder));
                 array.add_element(node);
             }
 
@@ -95,7 +91,7 @@ namespace Knotes {
             return Path.build_filename(notes_dir, id + ".json");
         }
 
-        public List<Note> list_all() {
+        public override List<Note> list_notes() {
             var notes = new List<Note>();
             try {
                 var enumerator = notes_dir_file.enumerate_children(
@@ -118,7 +114,7 @@ namespace Knotes {
             return notes;
         }
 
-        public Note? load_note(string id) {
+        public override Note? load_note(string id) {
             var path = file_path_for_id(id);
             var file = File.new_for_path(path);
             try {
@@ -126,17 +122,17 @@ namespace Knotes {
                 var parser = new Json.Parser();
                 parser.load_from_file(path);
                 var obj = parser.get_root().get_object();
-                return Note.from_json(obj);
+                return NoteJsonMapper.from_json(obj);
             } catch (GLib.Error e) {
                 warning("Failed to load note '%s': %s", id, e.message);
                 return null;
             }
         }
 
-        public void save_note(Note note) {
+        public override void save_note(Note note) {
             var generator = new Json.Generator();
             var root = new Json.Node(Json.NodeType.OBJECT);
-            root.set_object(note.to_json());
+            root.set_object(NoteJsonMapper.to_json(note));
             generator.set_root(root);
             generator.pretty = true;
             try {
@@ -147,7 +143,7 @@ namespace Knotes {
             }
         }
 
-        public void delete_note(string id) {
+        public override void delete_note(string id) {
             var file = File.new_for_path(file_path_for_id(id));
             try {
                 if (file.query_exists()) {

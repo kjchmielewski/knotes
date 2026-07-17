@@ -40,32 +40,5 @@ namespace Knotes {
             }
             return stripped.substring(0, max_length) + "…";
         }
-
-        public Json.Object to_json() {
-            var obj = new Json.Object();
-            obj.set_string_member("id", id);
-            obj.set_string_member("title", title);
-            obj.set_string_member("content", content);
-            obj.set_string_member("folder_id", folder_id);
-            obj.set_string_member("created_at", created_at.format_iso8601());
-            obj.set_string_member("updated_at", updated_at.format_iso8601());
-            return obj;
-        }
-
-        public static Note? from_json(Json.Object obj) {
-            var id = obj.get_string_member("id");
-            var title = obj.get_string_member("title");
-            var content = obj.get_string_member("content");
-            var folder_id = obj.has_member("folder_id") ? obj.get_string_member("folder_id") : "";
-            var created_at = new DateTime.from_iso8601(obj.get_string_member("created_at"), null);
-            var updated_at = new DateTime.from_iso8601(obj.get_string_member("updated_at"), null);
-
-            if (id == null || title == null || content == null ||
-                created_at == null || updated_at == null) {
-                return null;
-            }
-
-            return new Note(id, title, content, created_at, updated_at, folder_id);
-        }
     }
 }

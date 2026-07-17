@@ -46,7 +46,7 @@ namespace Knotes {
         [GtkChild]
         private unowned Gtk.Button delete_button;
 
-        private NoteRepository repository;
+        private NotebookService notebook_service;
         private NoteListBox note_list;
         private Gtk.Box sidebar;
         private int expanded_sidebar_width = DEFAULT_SIDEBAR_WIDTH;
@@ -54,9 +54,9 @@ namespace Knotes {
         private string? current_note_id = null;
         private uint save_timeout_id = 0;
 
-        public MainWindow(Gtk.Application app, NoteRepository repository, bool tray_enabled) {
+        public MainWindow(Gtk.Application app, NotebookService notebook_service, bool tray_enabled) {
             Object(application: app);
-            this.repository = repository;
+            this.notebook_service = notebook_service;
             hide_on_close = tray_enabled;
             build_ui();
             connect_signals();
@@ -72,7 +72,7 @@ namespace Knotes {
             sidebar.add_css_class("navigation-sidebar");
             sidebar.set_size_request(DEFAULT_SIDEBAR_WIDTH, -1);
 
-            note_list = new NoteListBox(repository);
+            note_list = new NoteListBox(notebook_service);
             sidebar.append(note_list);
 
             main_paned.set_start_child(sidebar);
@@ -240,7 +240,7 @@ namespace Knotes {
                 return;
             }
 
-            var note = repository.load_note(id);
+            var note = notebook_service.find_note(id);
             if (note == null) {
                 editor_stack.set_visible_child_name("empty");
                 return;
@@ -337,7 +337,7 @@ namespace Knotes {
         private void save_current_note() {
             if (current_note_id == null)return;
 
-            var note = repository.load_note(current_note_id);
+            var note = notebook_service.find_note(current_note_id);
             if (note == null)return;
 
             var new_title = title_entry.text;
@@ -353,8 +353,8 @@ namespace Knotes {
             note.title = new_title;
             note.content = new_content;
             note.updated_at = new DateTime.now_utc();
-            repository.save_note(note);
-            note_list.update_note(note);
+            notebook_service.save_note(note);
+            note_list.refresh_note(note);
         }
 
         private void on_delete_note() {
@@ -374,8 +374,8 @@ namespace Knotes {
                     if (btn == 1) {
                         var id = current_note_id;
                         current_note_id = null;
-                        repository.delete_note(id);
-                        note_list.remove_note(id);
+                        notebook_service.delete_note(id);
+                        note_list.refresh_after_note_deletion();
                         editor_stack.set_visible_child_name("empty");
                     }
                 } catch (GLib.Error e) {
@@ -385,13 +385,12 @@ namespace Knotes {
         }
 
         private void on_new_note() {
-            var note = new Note.with_new_content(
+            var note = notebook_service.create_note(
                 _("Untitled"),
                 "",
                 note_list.folder_id_for_new_note()
             );
-            repository.save_note(note);
-            note_list.create_note(note);
+            note_list.show_created_note(note);
         }
     }
 }

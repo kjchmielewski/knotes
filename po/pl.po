@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: knotes 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-17 10:43+0200\n"
+"POT-Creation-Date: 2026-07-18 00:32+0200\n"
 "PO-Revision-Date: 2026-06-21 00:00+0000\n"
 "Last-Translator: Krzysztof Chmielewski\n"
 "Language-Team: Polish\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 "
 "|| n%100>14) ? 1 : 2);\n"
 
-#: data/main_window.blp:19 src/main_window.vala:195
+#: data/main_window.blp:19 src/presentation/window/main_window.vala:195
 msgid "Collapse sidebar"
 msgstr "Zwiń pasek boczny"
 
@@ -29,7 +29,7 @@ msgstr "Menu"
 msgid "Delete folder"
 msgstr "Usuń folder"
 
-#: data/main_window.blp:42 src/note_list_box.vala:526
+#: data/main_window.blp:42 src/presentation/sidebar/folder_dialogs.vala:9
 msgid "New folder"
 msgstr "Nowy folder"
 
@@ -45,11 +45,11 @@ msgstr "Wybierz notatkę lub utwórz nową"
 msgid "Note title…"
 msgstr "Tytuł notatki…"
 
-#: data/main_window.blp:93 src/main_window.vala:178
+#: data/main_window.blp:93 src/presentation/window/main_window.vala:178
 msgid "Enable Markdown highlighting"
 msgstr "Włącz podświetlanie Markdown"
 
-#: data/main_window.blp:103 src/main_window.vala:278
+#: data/main_window.blp:103 src/presentation/window/main_window.vala:278
 msgid "Preview Markdown"
 msgstr "Podgląd Markdown"
 
@@ -61,67 +61,70 @@ msgstr "Usuń notatkę"
 msgid "Search notes…"
 msgstr "Szukaj notatek…"
 
-#: src/main_window.vala:164 src/tray_manager.vala:238
+#: src/presentation/window/main_window.vala:164
+#: src/presentation/tray/tray_manager.vala:238
 msgid "Quit"
 msgstr "Zakończ"
 
-#: src/main_window.vala:177
+#: src/presentation/window/main_window.vala:177
 msgid "Plain text mode"
 msgstr "Tryb zwykłego tekstu"
 
-#: src/main_window.vala:195
+#: src/presentation/window/main_window.vala:195
 msgid "Expand sidebar"
 msgstr "Rozwiń pasek boczny"
 
-#: src/main_window.vala:273
+#: src/presentation/window/main_window.vala:273
 msgid "Edit Markdown"
 msgstr "Edytuj Markdown"
 
-#: src/main_window.vala:364
+#: src/presentation/window/main_window.vala:364
 msgid "Delete this note?"
 msgstr "Usunąć tę notatkę?"
 
-#: src/main_window.vala:366
+#: src/presentation/window/main_window.vala:366
 msgid "This action cannot be undone."
 msgstr "Tej operacji nie można cofnąć."
 
-#: src/main_window.vala:367 src/note_list_box.vala:529
-#: src/note_list_box.vala:568
+#: src/presentation/window/main_window.vala:367
+#: src/presentation/sidebar/folder_dialogs.vala:12
+#: src/presentation/sidebar/folder_dialogs.vala:37
 msgid "Cancel"
 msgstr "Anuluj"
 
-#: src/main_window.vala:367 src/note_list_box.vala:569
+#: src/presentation/window/main_window.vala:367
+#: src/presentation/sidebar/folder_dialogs.vala:38
 msgid "Delete"
 msgstr "Usuń"
 
-#: src/main_window.vala:389
+#: src/presentation/window/main_window.vala:389
 msgid "Untitled"
 msgstr "Bez tytułu"
 
-#: src/note_list_box.vala:116
+#: src/presentation/sidebar/note_list_box.vala:47
 msgid "All notes"
 msgstr "Wszystkie notatki"
 
-#: src/note_list_box.vala:527
+#: src/presentation/sidebar/folder_dialogs.vala:10
 msgid "Enter a name for the new folder."
 msgstr "Wprowadź nazwę nowego folderu."
 
-#: src/note_list_box.vala:530
+#: src/presentation/sidebar/folder_dialogs.vala:13
 msgid "Create"
 msgstr "Utwórz"
 
-#: src/note_list_box.vala:535
+#: src/presentation/sidebar/folder_dialogs.vala:18
 msgid "Folder name"
 msgstr "Nazwa folderu"
 
-#: src/note_list_box.vala:565
+#: src/presentation/sidebar/folder_dialogs.vala:34
 msgid "Delete folder?"
 msgstr "Usunąć folder?"
 
-#: src/note_list_box.vala:566
+#: src/presentation/sidebar/folder_dialogs.vala:35
 msgid "Notes and subfolders will be moved to the parent folder."
 msgstr "Notatki i podfoldery zostaną przeniesione do folderu nadrzędnego."
 
-#: src/tray_manager.vala:310
+#: src/presentation/tray/tray_manager.vala:310
 msgid "A simple note-taking app"
 msgstr "Prosta aplikacja do notatek"

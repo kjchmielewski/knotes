@@ -1,13 +1,23 @@
 sources = files(
-    'main.vala',
-    'application.vala',
+    'bootstrap/main.vala',
+    'bootstrap/application_factory.vala',
+    'presentation/shell/application.vala',
     'i18n.vala',
-    'main_window.vala',
-    'note.vala',
-    'folder.vala',
-    'note_repository.vala',
-    'note_list_box.vala',
-    'tray_manager.vala'
+    'presentation/window/main_window.vala',
+    'domain/note.vala',
+    'domain/folder.vala',
+    'application/notebook_catalog.vala',
+    'application/ports/notebook_repository.vala',
+    'application/notebook_service.vala',
+    'infrastructure/json/note_json_mapper.vala',
+    'infrastructure/json/folder_json_mapper.vala',
+    'infrastructure/json/json_notebook_repository.vala',
+    'presentation/sidebar/note_row.vala',
+    'presentation/sidebar/compact_note_row.vala',
+    'presentation/sidebar/folder_tree_view.vala',
+    'presentation/sidebar/folder_dialogs.vala',
+    'presentation/sidebar/note_list_box.vala',
+    'presentation/tray/tray_manager.vala'
 )
 
 sources += config_file

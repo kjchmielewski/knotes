@@ -27,6 +27,24 @@ subdir('src')
 subdir('data')
 subdir('po')
 
+notebook_application_test = executable(
+    'notebook-application-test',
+    files(
+        'tests/notebook_application_test.vala',
+        'src/domain/note.vala',
+        'src/domain/folder.vala',
+        'src/application/notebook_catalog.vala',
+        'src/application/ports/notebook_repository.vala',
+        'src/application/notebook_service.vala'
+    ),
+    dependencies: [
+        dependency('glib-2.0'),
+        dependency('gee-0.8')
+    ]
+)
+
+test('notebook-application', notebook_application_test)
+
 gnome.post_install(
     gtk_update_icon_cache: true
 )

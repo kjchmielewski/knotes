@@ -98,15 +98,13 @@ knotes/
 ├── meson.build                # Root build definition
 ├── src/
 │   ├── meson.build            # Source build definition
-│   ├── main.vala              # Entry point, localization, flag parsing
 │   ├── config.vala.in         # Build-time constants for localization
-│   ├── application.vala       # Libadwaita Application subclass, tray lifecycle
-│   ├── main_window.vala       # Main window template binding, editor wiring, minimize-to-tray
 │   ├── i18n.vala              # gettext helper
-│   ├── note.vala              # Note data model
-│   ├── note_repository.vala   # File-based persistence layer
-│   ├── note_list_box.vala     # Sidebar note list widget
-│   └── tray_manager.vala      # StatusNotifierItem + D-BusMenu tray integration
+│   ├── bootstrap/             # Entry point and dependency composition
+│   ├── domain/                # Note and Folder models
+│   ├── application/           # Use cases, catalog queries, repository port
+│   ├── infrastructure/json/   # JSON persistence, mappers, file monitoring
+│   └── presentation/          # GTK window, shell, sidebar, and tray components
 ├── data/
 │   ├── meson.build            # Data build definition
 │   ├── icons/
@@ -128,6 +126,8 @@ knotes/
 │   ├── POTFILES               # Sources scanned for translatable strings
 │   ├── POTFILES.skip          # Sources to skip during translation scanning
 │   └── pl.po                  # Polish translation
+├── tests/
+│   └── notebook_application_test.vala # Domain and application tests
 └── README.md
 ```
 
@@ -135,11 +135,16 @@ knotes/
 
 | Component | Responsibility |
 |---|---|
-| `Note` | Data model — immutable properties, JSON serialization |
-| `NoteRepository` | Persistence — filesystem read/write, directory monitoring |
-| `NoteListBox` | Sidebar widget — search, list, row management |
+| `Note`, `Folder` | Domain models without UI or persistence dependencies |
+| `NotebookCatalog` | Search, sorting, folder hierarchy, and in-memory lookup |
+| `NotebookService` | Note and folder use cases; coordinates the repository port |
+| `NotebookRepository` | Application port for persistence and external-change events |
+| `JsonNotebookRepository` | JSON filesystem persistence and directory monitoring |
+| `NoteListBox` | Sidebar coordinator for compact and expanded presentations |
+| `FolderTreeView`, row widgets, dialogs | Focused GTK sidebar components |
 | `MainWindow` | Libadwaita window template binding — split pane, editor, signal wiring, minimize-to-tray |
-| `Application` | Entry point — Libadwaita application lifecycle, tray orchestration, start-minimized mode |
+| `Application` | Libadwaita lifecycle, tray orchestration, and start-minimized mode |
+| `ApplicationFactory` | Composition root connecting the JSON adapter to application services |
 | `TrayManager` | **StatusNotifierItem** and **D-BusMenu** implementation (Wayland-ready) |
 
 ## Tray Icon

@@ -2,9 +2,11 @@
 
 ## Project Structure & Module Organization
 
-`src/` contains the Vala application code. Key modules are `application.vala` for the Libadwaita application lifecycle, `main_window.vala` for the main UI wiring, `note_repository.vala` for JSON-file persistence, `note_list_box.vala` for the sidebar, and `tray_manager.vala` for StatusNotifierItem/D-BusMenu tray integration.
+The Vala sources follow a lightweight hexagonal structure. `src/domain/` contains the `Note` and `Folder` models and must not depend on GTK or JSON. `src/application/` contains `NotebookService`, the query-oriented `NotebookCatalog`, and the abstract repository port in `application/ports/`. `src/infrastructure/json/` implements that port with JSON files, mappers, and directory monitoring.
 
-`data/` contains UI and desktop assets: Blueprint templates (`*.blp`), `style.css`, the GResource manifest, desktop metadata, and the application icon. `po/` contains gettext translation files, including `pl.po`. Build definitions live in `meson.build`, `src/meson.build`, `data/meson.build`, and `po/meson.build`.
+`src/presentation/` contains GTK/Libadwaita code: the application shell, main window, tray integration, and sidebar components. `NoteListBox` coordinates the sidebar; `FolderTreeView`, `FolderDialogs`, `NoteRow`, and `CompactNoteRow` own focused UI responsibilities. `src/bootstrap/` contains the entry point and `ApplicationFactory`, which wires infrastructure to application ports.
+
+`data/` contains Blueprint templates, CSS, GResources, desktop metadata, and icons. `tests/` contains GLib tests for code that does not require a display. `po/` contains gettext files. Register new Vala sources in `src/meson.build`; register new translatable sources in `po/POTFILES`.
 
 ## Build, Test, and Development Commands
 
@@ -16,9 +18,10 @@ Configure a local build directory.
 
 ```bash
 meson compile -C builddir
+meson test -C builddir --print-errorlogs
 ```
 
-Compile Vala sources, Blueprint templates, resources, and translations.
+Compile the application and run the automated tests.
 
 ```bash
 ./builddir/src/knotes
@@ -37,13 +40,15 @@ Regenerate translation templates and test Polish translations from the build tre
 
 ## Coding Style & Naming Conventions
 
-Use 4-space indentation, namespace all app code under `Knotes`, and follow the existing Vala style: `PascalCase` for classes, `snake_case` for methods, fields, locals, and signal names. Keep UI layout in Blueprint files and behavior in Vala. Prefer small private helper methods for lifecycle steps, especially around window creation, tray restore, and persistence.
+Use 4-space indentation, namespace app code under `Knotes`, and follow the existing Vala style: `PascalCase` for classes and `snake_case` for methods, fields, locals, and signals. Keep declarative UI layout in Blueprint and behavior in Vala.
+
+Dependencies point inward: presentation calls application services, application depends on domain and repository ports, and infrastructure implements those ports. Domain code must not import GTK, Adwaita, WebKit, JSON-GLib, or filesystem APIs. Keep serialization in mappers and construct concrete repositories only in `src/bootstrap/`. UI classes must request mutations through `NotebookService` rather than writing files or mutating `NotebookCatalog` directly.
 
 Translatable UI strings should go through the gettext helper in `src/i18n.vala`. When adding new files with user-visible strings, update `po/POTFILES`.
 
 ## Testing Guidelines
 
-There is no dedicated automated test suite yet. Treat `meson compile -C builddir` as the minimum verification for every change. For UI, tray, persistence, or translation work, also run the app manually with the relevant flags. Check note files under `~/.local/share/knotes/notes/` when changing storage behavior.
+Treat `meson compile -C builddir` and `meson test -C builddir --print-errorlogs` as the minimum verification. Add GLib tests for domain and application behavior, especially folder hierarchy, search, and persistence-independent rules. For UI, tray, persistence, or translation work, also run the app manually with the relevant flags. Check note files under `~/.local/share/knotes/notes/` when changing storage behavior.
 
 ## Commit & Pull Request Guidelines
 
@@ -53,4 +58,4 @@ Pull requests should describe the user-visible behavior change, list manual veri
 
 ## Agent-Specific Instructions
 
-Respect existing lifecycle boundaries: `startup()` owns one-time setup, `ensure_main_window()` owns lazy window construction, and restore/show behavior should repair minimized state before presenting. Do not replace the current pure GLib D-Bus tray implementation with external tray libraries unless the project explicitly chooses that dependency.
+Respect existing lifecycle boundaries: `startup()` owns one-time setup, `ensure_main_window()` owns lazy window construction, and restore/show behavior repairs minimized state before presenting. `ApplicationFactory` is the composition root; do not instantiate `JsonNotebookRepository` from presentation widgets or application services. Keep sidebar rendering in its focused presentation components and search/hierarchy rules in `NotebookCatalog`. Do not replace the pure GLib D-Bus tray implementation with external tray libraries unless the project explicitly chooses that dependency.

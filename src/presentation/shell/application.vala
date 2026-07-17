@@ -3,7 +3,7 @@ namespace Knotes {
     public class Application : Adw.Application {
         private const string STYLE_RESOURCE_PATH = "/com/knotes/app/style.css";
 
-        private NoteRepository repository;
+        private NotebookService notebook_service;
         private TrayManager? tray_manager = null;
         private MainWindow? main_window = null;
         private bool is_style_loaded = false;
@@ -31,7 +31,7 @@ namespace Knotes {
         protected override void startup() {
             base.startup();
             load_application_style();
-            repository = new NoteRepository();
+            notebook_service = ApplicationFactory.create_notebook_service();
 
             setup_quit_action();
 
@@ -49,7 +49,7 @@ namespace Knotes {
 
         private MainWindow ensure_main_window() {
             if (main_window == null) {
-                main_window = new MainWindow(this, repository, tray_enabled);
+                main_window = new MainWindow(this, notebook_service, tray_enabled);
             }
             return main_window;
         }
