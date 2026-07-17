@@ -29,9 +29,10 @@ template $KnotesMainWindow : Adw.ApplicationWindow {
       }
 
       [end]
-      Gtk.Button header_new_button {
-        icon-name: "document-new-symbolic";
-        tooltip-text: _("New note");
+      Gtk.Button header_delete_folder_button {
+        icon-name: "edit-delete-symbolic";
+        tooltip-text: _("Delete folder");
+        sensitive: false;
         styles ["flat", "circular"]
       }
 
@@ -39,6 +40,13 @@ template $KnotesMainWindow : Adw.ApplicationWindow {
       Gtk.Button header_new_folder_button {
         icon-name: "folder-new-symbolic";
         tooltip-text: _("New folder");
+        styles ["flat", "circular"]
+      }
+
+      [end]
+      Gtk.Button header_new_button {
+        icon-name: "document-new-symbolic";
+        tooltip-text: _("New note");
         styles ["flat", "circular"]
       }
     }

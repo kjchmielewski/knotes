@@ -70,6 +70,7 @@ namespace Knotes {
     public class NoteListBox : Gtk.Box {
         private const string FOLDER_ICON_NAME = "folder-symbolic";
         private const int FOLDER_ICON_SIZE = 16;
+        private const string SELECTED_FOLDER_CSS_CLASS = "selected-folder";
 
         [GtkChild]
         private unowned Gtk.Stack view_stack;
@@ -107,6 +108,7 @@ namespace Knotes {
         }
 
         public signal void note_selected(string? id);
+        public signal void folder_selection_changed(bool can_delete);
 
         public NoteListBox(NoteRepository repository) {
             Object();
@@ -298,18 +300,31 @@ namespace Knotes {
         private void select_folder(string? folder_id) {
             selected_folder_id = folder_id;
             update_folder_selection();
+            folder_selection_changed(folder_id != null);
+            if (!selected_note_belongs_to_folder(folder_id)) {
+                select_note(null);
+            }
+        }
+
+        private bool selected_note_belongs_to_folder(string? folder_id) {
+            if (selected_id == null) {
+                return true;
+            }
+
+            var note = notes_map[selected_id];
+            return note != null && normalized_folder_id(note) == folder_id;
         }
 
         private void update_folder_selection() {
-            all_notes_button.remove_css_class("suggested-action");
+            all_notes_button.remove_css_class(SELECTED_FOLDER_CSS_CLASS);
             if (selected_folder_id == null) {
-                all_notes_button.add_css_class("suggested-action");
+                all_notes_button.add_css_class(SELECTED_FOLDER_CSS_CLASS);
             }
             foreach (var entry in folder_buttons.entries) {
-                entry.value.remove_css_class("suggested-action");
+                entry.value.remove_css_class(SELECTED_FOLDER_CSS_CLASS);
             }
             if (selected_folder_id != null && folder_buttons.has_key(selected_folder_id)) {
-                folder_buttons[selected_folder_id].add_css_class("suggested-action");
+                folder_buttons[selected_folder_id].add_css_class(SELECTED_FOLDER_CSS_CLASS);
             }
         }
 
@@ -332,8 +347,26 @@ namespace Knotes {
 
         private void select_note(string? id) {
             selected_id = id;
+            if (id != null) {
+                select_folder_for_note(id);
+            }
             select_visible_row(id);
             note_selected(id);
+        }
+
+        private void select_folder_for_note(string note_id) {
+            var note = notes_map[note_id];
+            if (note == null) {
+                return;
+            }
+
+            select_folder(normalized_folder_id(note));
+        }
+
+        private string? normalized_folder_id(Note note) {
+            return note.folder_id.length > 0 && folders_map.has_key(note.folder_id)
+                ? note.folder_id
+                : null;
         }
 
         private void select_visible_row(string? id) {
@@ -515,6 +548,60 @@ namespace Knotes {
                 rebuild_tree_views();
                 select_folder(folder.id);
             });
+        }
+
+        public void show_delete_folder_dialog() {
+            if (selected_folder_id == null) {
+                return;
+            }
+
+            var folder = folders_map[selected_folder_id];
+            if (folder == null) {
+                select_folder(null);
+                return;
+            }
+
+            var dialog = new Adw.AlertDialog(
+                _("Delete folder?"),
+                _("Notes and subfolders will be moved to the parent folder.")
+            );
+            dialog.add_response("cancel", _("Cancel"));
+            dialog.add_response("delete", _("Delete"));
+            dialog.close_response = "cancel";
+            dialog.default_response = "cancel";
+            dialog.set_response_appearance("delete", Adw.ResponseAppearance.DESTRUCTIVE);
+            dialog.choose.begin(this, null, (obj, result) => {
+                if (dialog.choose.end(result) == "delete") {
+                    delete_folder(folder);
+                }
+            });
+        }
+
+        private void delete_folder(Folder folder) {
+            string? parent_id = folder.parent_id != null && folders_map.has_key(folder.parent_id)
+                ? folder.parent_id
+                : null;
+            var note_folder_id = parent_id ?? "";
+
+            foreach (var note in notes_map.values) {
+                if (note.folder_id != folder.id) {
+                    continue;
+                }
+                note.folder_id = note_folder_id;
+                note.updated_at = new DateTime.now_utc();
+                repository.save_note(note);
+            }
+
+            foreach (var child in folders_map.values) {
+                if (child.parent_id == folder.id) {
+                    child.parent_id = parent_id;
+                }
+            }
+
+            folders_map.unset(folder.id);
+            save_folders();
+            select_folder(parent_id);
+            rebuild_tree_views();
         }
 
         private void save_folders() {

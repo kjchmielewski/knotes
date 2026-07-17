@@ -21,6 +21,8 @@ namespace Knotes {
         [GtkChild]
         private unowned Gtk.Button header_new_folder_button;
         [GtkChild]
+        private unowned Gtk.Button header_delete_folder_button;
+        [GtkChild]
         private unowned Gtk.ToggleButton sidebar_toggle_button;
         [GtkChild]
         private unowned Gtk.MenuButton header_menu_button;
@@ -142,10 +144,14 @@ namespace Knotes {
 
         private void connect_signals() {
             note_list.note_selected.connect(on_note_selected);
+            note_list.folder_selection_changed.connect((can_delete) => {
+                header_delete_folder_button.sensitive = can_delete;
+            });
             sidebar_toggle_button.toggled.connect(on_sidebar_toggle);
             main_paned.notify["position"].connect(on_sidebar_position_changed);
             header_new_button.clicked.connect(on_new_note);
             header_new_folder_button.clicked.connect(note_list.show_new_folder_dialog);
+            header_delete_folder_button.clicked.connect(note_list.show_delete_folder_dialog);
             delete_button.clicked.connect(on_delete_note);
             markdown_highlighting_toggle_button.toggled.connect(on_markdown_highlighting_toggled);
             preview_toggle_button.toggled.connect(on_preview_toggled);
@@ -225,6 +231,9 @@ namespace Knotes {
         }
 
         private void on_note_selected(string? id) {
+            if (current_note_id != id) {
+                save_pending_changes();
+            }
             current_note_id = id;
             if (id == null) {
                 editor_stack.set_visible_child_name("empty");
@@ -238,6 +247,16 @@ namespace Knotes {
             }
 
             show_note(note);
+        }
+
+        private void save_pending_changes() {
+            if (save_timeout_id == 0) {
+                return;
+            }
+
+            Source.remove(save_timeout_id);
+            save_timeout_id = 0;
+            save_current_note();
         }
 
         private void show_note(Note note) {
