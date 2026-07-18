@@ -8,6 +8,7 @@ A simple note-taking application built with **Vala**, **GTK4**, **Libadwaita**, 
 - Organize notes in nested folders; rename folders and move notes or folders with drag-and-drop
 - Search through notes by title or content
 - Auto-save with debounced writes
+- Add note-local images by dropping files into the editor or pasting images from the clipboard
 - Notes stored locally as JSON files (`~/.local/share/knotes/notes/`)
 - Real-time file monitoring — changes from external editors are reflected instantly
 - Optional system tray icon (pass `--tray`) — uses the modern StatusNotifierItem D-Bus protocol, compatible with X11/Wayland tray hosts such as KDE Plasma and Xfce
@@ -103,9 +104,9 @@ knotes/
 │   ├── i18n.vala              # gettext helper
 │   ├── bootstrap/             # Entry point and dependency composition
 │   ├── domain/                # Note and Folder models
-│   ├── application/           # Use cases, catalog queries, repository port
-│   ├── infrastructure/json/   # JSON persistence, mappers, file monitoring
-│   └── presentation/          # GTK window, shell, sidebar, and tray components
+│   ├── application/           # Focused use cases, workspace, catalog, and ports
+│   ├── infrastructure/json/   # Note, folder, and asset JSON adapters
+│   └── presentation/          # GTK shell, editor, sidebar, window, and tray components
 ├── data/
 │   ├── meson.build            # Data build definition
 │   ├── icons/
@@ -114,6 +115,7 @@ knotes/
 │   │   ├── format-text-rich-symbolic-dark.svg  # Symbolic dark text format icon
 │   │   └── format-text-rich-symbolic-light.svg # Symbolic light text format icon
 │   ├── main_window.blp        # Main window Blueprint template compiled into GResource
+│   ├── note_editor_pane.blp   # Note editor Blueprint template compiled into GResource
 │   ├── note_list_box.blp      # Note list Blueprint template compiled into GResource
 │   ├── note_row.blp           # Note row Blueprint template compiled into GResource
 │   ├── knotes.gresource.xml   # GResource manifest for generated UI, CSS, and icons
@@ -128,7 +130,9 @@ knotes/
 │   ├── POTFILES.skip          # Sources to skip during translation scanning
 │   └── pl.po                  # Polish translation
 ├── tests/
-│   └── notebook_application_test.vala # Domain and application tests
+│   ├── notebook_application_test.vala # Domain and application tests
+│   ├── json_notebook_repository_test.vala # JSON adapter tests
+│   └── sidebar_state_test.vala # Display-free sidebar state tests
 └── README.md
 ```
 
@@ -138,12 +142,16 @@ knotes/
 |---|---|
 | `Note`, `Folder` | Domain models without UI or persistence dependencies |
 | `NotebookCatalog` | Search, sorting, folder hierarchy, and in-memory lookup |
-| `NotebookService` | Note and folder use cases; coordinates the repository port |
-| `NotebookRepository` | Application port for persistence and external-change events |
-| `JsonNotebookRepository` | JSON filesystem persistence and directory monitoring |
-| `NoteListBox` | Sidebar coordinator for compact and expanded presentations |
-| `FolderTreeView`, row widgets, dialogs | Focused GTK sidebar components |
-| `MainWindow` | Libadwaita window template binding — split pane, editor, signal wiring, minimize-to-tray |
+| `NotebookWorkspace` | Owns the in-memory catalog and synchronizes external note changes |
+| `NoteService`, `FolderService`, `NoteAssetService` | Focused application use cases |
+| `NoteRepository`, `FolderRepository`, `NoteAssetRepository` | Segregated persistence ports |
+| JSON repositories | Separate note, folder, and asset adapters sharing `JsonStorageLayout` |
+| `SidebarSelectionModel` | Display-free owner of the logical note and folder selection |
+| `SidebarCommandController` | Sidebar create, rename, delete, and move commands |
+| `NoteListBox` | Composer of compact and expanded sidebar presentations |
+| `SidebarTreeView`, row widgets, dialogs | Focused GTK sidebar rendering and interactions |
+| `NoteEditorPane`, editor components | Editing, autosave, preview, and image-import presentation |
+| `MainWindow` | Window shell, sidebar layout, header routing, and minimize-to-tray |
 | `Application` | Libadwaita lifecycle, tray orchestration, and start-minimized mode |
 | `ApplicationFactory` | Composition root connecting the JSON adapter to application services |
 | `TrayManager` | **StatusNotifierItem** and **D-BusMenu** implementation (Wayland-ready) |
@@ -179,7 +187,19 @@ The tray icon:
 
 The tray icon is exposed primarily by icon name (`com.knotes.app`) and installed into the `hicolor` icon theme. A standards-compliant empty `IconPixmap` is provided so tray hosts prefer the themed icon. No external tray libraries (`libappindicator`, etc.) are needed.
 
-Notes are stored as individual JSON files under `~/.local/share/knotes/notes/`. The app uses a `GtkListBox` for the note list with real-time filtering. Edits are debounced at 500ms to avoid excessive disk writes.
+Notes are stored as individual JSON files under `~/.local/share/knotes/notes/`. Imported images are stored separately for each note:
+
+```text
+~/.local/share/knotes/notes/
+├── <note-id>.json
+└── <note-id>/
+    └── assets/
+        └── image.png
+```
+
+Dropped files and pasted clipboard images are inserted as relative Markdown references such as `![Diagram](assets/diagram.png)`. Supported formats are PNG, JPEG, GIF, WebP, SVG, BMP, and TIFF. Removing a reference stages the unused image for cleanup on the next application start, so undoing the edit before restarting can restore it.
+
+The app uses a `GtkListBox` for the note list with real-time filtering. Edits are debounced at 500ms to avoid excessive disk writes.
 
 ## License
 

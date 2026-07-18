@@ -1,0 +1,77 @@
+using Gtk 4.0;
+translation-domain "knotes";
+
+template $KnotesNoteEditorPane : Gtk.Box {
+  orientation: vertical;
+
+  Gtk.Stack editor_stack {
+    hexpand: true;
+    vexpand: true;
+    transition-type: crossfade;
+
+    Gtk.StackPage {
+      name: "empty";
+      child: Gtk.Label {
+        label: _("Select a note or create a new one");
+        halign: center;
+        valign: center;
+        opacity: 0.5;
+        styles ["large-title"]
+      };
+    }
+
+    Gtk.StackPage {
+      name: "editor";
+      child: Gtk.Box {
+        orientation: vertical;
+        spacing: 8;
+        margin-start: 16;
+        margin-end: 16;
+        margin-top: 16;
+        margin-bottom: 16;
+
+        Gtk.Box {
+          orientation: horizontal;
+          spacing: 8;
+
+          Gtk.Entry title_entry {
+            hexpand: true;
+            placeholder-text: _("Note title…");
+            styles ["title-2", "flat"]
+          }
+
+          Gtk.ToggleButton markdown_highlighting_toggle_button {
+            tooltip-text: _("Enable Markdown highlighting");
+            styles ["flat"]
+
+            child: Gtk.Image markdown_highlighting_icon {
+              resource: "/com/knotes/app/icons/format-text-rich-symbolic-light.svg";
+            };
+          }
+
+          Gtk.ToggleButton preview_toggle_button {
+            icon-name: "view-reveal-symbolic";
+            tooltip-text: _("Preview Markdown");
+            styles ["flat"]
+          }
+
+          Gtk.Button delete_button {
+            icon-name: "user-trash-symbolic";
+            tooltip-text: _("Delete note");
+            styles ["destructive-action"]
+          }
+        }
+
+        Gtk.Separator {
+          orientation: horizontal;
+        }
+
+        Gtk.Stack content_stack {
+          hexpand: true;
+          vexpand: true;
+          transition-type: crossfade;
+        }
+      };
+    }
+  }
+}

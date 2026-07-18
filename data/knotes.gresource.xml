@@ -2,6 +2,7 @@
 <gresources>
   <gresource prefix="/com/knotes/app">
     <file preprocess="xml-stripblanks">main_window.ui</file>
+    <file preprocess="xml-stripblanks">note_editor_pane.ui</file>
     <file preprocess="xml-stripblanks">note_list_box.ui</file>
     <file preprocess="xml-stripblanks">note_row.ui</file>
     <file>icons/com.knotes.app.svg</file>

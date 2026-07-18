@@ -1,7 +1,10 @@
 data/main_window.blp
+data/note_editor_pane.blp
 data/note_list_box.blp
 src/presentation/shell/application.vala
 src/presentation/window/main_window.vala
+src/presentation/editor/note_asset_import_controller.vala
+src/presentation/editor/note_editor_pane.vala
 src/presentation/sidebar/note_list_box.vala
 src/presentation/sidebar/folder_dialogs.vala
 src/presentation/sidebar/move_destination_dialog.vala

@@ -2,9 +2,9 @@
 
 ## Project Structure & Module Organization
 
-The Vala sources follow a lightweight hexagonal structure. `src/domain/` contains the `Note` and `Folder` models and must not depend on GTK or JSON. `src/application/` contains `NotebookService`, the query-oriented `NotebookCatalog`, and the abstract repository port in `application/ports/`. `src/infrastructure/json/` implements that port with JSON files, mappers, and directory monitoring.
+The Vala sources follow a lightweight hexagonal structure. `src/domain/` contains the `Note` and `Folder` models and must not depend on GTK or JSON. `src/application/` contains focused note, folder, and asset services, the shared `NotebookWorkspace`, the query-oriented `NotebookCatalog`, and segregated ports in `application/ports/`. `src/infrastructure/json/` implements those ports with JSON files, mappers, asset storage, and directory monitoring.
 
-`src/presentation/` contains GTK/Libadwaita code: the application shell, main window, tray integration, and sidebar components. `NoteListBox` coordinates the sidebar; `FolderTreeView`, `FolderDialogs`, `MoveDestinationDialog`, `NoteRow`, and `CompactNoteRow` own focused UI responsibilities. `src/bootstrap/` contains the entry point and `ApplicationFactory`, which wires infrastructure to application ports.
+`src/presentation/` contains GTK/Libadwaita code: the application shell, main window, editor components, tray integration, and sidebar components. `NoteListBox` composes the sidebar, `SidebarSelectionModel` owns its logical selection, `SidebarCommandController` owns mutation commands, and `SidebarTreeView`, dialogs, and row widgets own focused GTK responsibilities. `src/bootstrap/` contains the entry point and `ApplicationFactory`, which wires infrastructure to application ports.
 
 `data/` contains Blueprint templates, CSS, GResources, desktop metadata, and icons. `tests/` contains GLib tests for code that does not require a display. `po/` contains gettext files. Register new Vala sources in `src/meson.build`; register new translatable sources in `po/POTFILES`.
 
@@ -42,11 +42,11 @@ Regenerate translation templates and test Polish translations from the build tre
 
 Use 4-space indentation, namespace app code under `Knotes`, and follow the existing Vala style: `PascalCase` for classes and `snake_case` for methods, fields, locals, and signals. Keep declarative UI layout in Blueprint and behavior in Vala.
 
-Dependencies point inward: presentation calls application services, application depends on domain and repository ports, and infrastructure implements those ports. Domain code must not import GTK, Adwaita, WebKit, JSON-GLib, or filesystem APIs. Keep serialization in mappers and construct concrete repositories only in `src/bootstrap/`. UI classes must request mutations through `NotebookService` rather than writing files or mutating `NotebookCatalog` directly.
+Dependencies point inward: presentation calls application services, application depends on domain and repository ports, and infrastructure implements those ports. Domain code must not import GTK, Adwaita, WebKit, JSON-GLib, or filesystem APIs. Keep serialization in mappers and construct concrete repositories only in `src/bootstrap/`. UI classes must request mutations through `NoteService`, `FolderService`, or `NoteAssetService` rather than writing files or mutating `NotebookCatalog` directly.
 
-Moving notes and folders is an application use case. Keep destination validation and cycle detection in `NotebookCatalog`/`NotebookService`; presentation code may pre-filter invalid drop targets but must still handle every `MoveResult`. Folder moves must reject the folder itself and all descendants. Preserve selected IDs, the search query, and expanded folder state when rebuilding the sidebar after a move.
+Moving notes and folders is an application use case. Keep destination validation and cycle detection in `NotebookCatalog`, `NoteService`, and `FolderService`; presentation code may pre-filter invalid drop targets but must still handle every `MoveResult`. Folder moves must reject the folder itself and all descendants. Preserve selected IDs, the search query, and expanded folder state when rebuilding the sidebar after a move.
 
-Renaming a folder is also an application use case. Normalize and validate names in `NotebookService`, return a `RenameFolderResult`, and restore the previous name if persistence fails. Rebuild the derived sidebar tree after a successful rename so labels and destination paths stay consistent without changing the selected folder ID.
+Renaming a folder is also an application use case. Normalize and validate names in `FolderService`, return a `RenameFolderResult`, and restore the previous name if persistence fails. Rebuild the derived sidebar tree after a successful rename so labels and destination paths stay consistent without changing the selected folder ID.
 
 Translatable UI strings should go through the gettext helper in `src/i18n.vala`. When adding new files with user-visible strings, update `po/POTFILES`.
 
@@ -66,4 +66,4 @@ Pull requests should describe the user-visible behavior change, list manual veri
 
 ## Agent-Specific Instructions
 
-Respect existing lifecycle boundaries: `startup()` owns one-time setup, `ensure_main_window()` owns lazy window construction, and restore/show behavior repairs minimized state before presenting. `ApplicationFactory` is the composition root; do not instantiate `JsonNotebookRepository` from presentation widgets or application services. Keep sidebar rendering in its focused presentation components and search/hierarchy rules in `NotebookCatalog`. Do not replace the pure GLib D-Bus tray implementation with external tray libraries unless the project explicitly chooses that dependency.
+Respect existing lifecycle boundaries: `startup()` owns one-time setup, `ensure_main_window()` owns lazy window construction, and restore/show behavior repairs minimized state before presenting. `ApplicationFactory` is the composition root; do not instantiate concrete JSON repositories from presentation widgets or application services. Keep sidebar rendering in its focused presentation components and search/hierarchy rules in `NotebookCatalog`. Do not replace the pure GLib D-Bus tray implementation with external tray libraries unless the project explicitly chooses that dependency.

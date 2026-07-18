@@ -34,10 +34,17 @@ notebook_application_test = executable(
         'src/domain/note.vala',
         'src/domain/folder.vala',
         'src/application/notebook_catalog.vala',
+        'src/application/notebook_workspace.vala',
+        'src/application/asset_import_result.vala',
         'src/application/move_result.vala',
         'src/application/rename_folder_result.vala',
-        'src/application/ports/notebook_repository.vala',
-        'src/application/notebook_service.vala'
+        'src/application/ports/note_repository.vala',
+        'src/application/ports/folder_repository.vala',
+        'src/application/ports/note_asset_repository.vala',
+        'src/application/note_service.vala',
+        'src/application/folder_service.vala',
+        'src/application/note_asset_service.vala',
+        'src/presentation/editor/autosave_coordinator.vala'
     ),
     dependencies: [
         dependency('glib-2.0'),
@@ -47,6 +54,52 @@ notebook_application_test = executable(
 )
 
 test('notebook-application', notebook_application_test)
+
+json_notebook_repository_test = executable(
+    'json-notebook-repository-test',
+    files(
+        'tests/json_notebook_repository_test.vala',
+        'src/domain/note.vala',
+        'src/domain/folder.vala',
+        'src/application/asset_import_result.vala',
+        'src/application/ports/note_repository.vala',
+        'src/application/ports/folder_repository.vala',
+        'src/application/ports/note_asset_repository.vala',
+        'src/infrastructure/json/note_json_mapper.vala',
+        'src/infrastructure/json/folder_json_mapper.vala',
+        'src/infrastructure/json/json_storage_layout.vala',
+        'src/infrastructure/json/json_note_asset_storage.vala',
+        'src/infrastructure/json/json_note_repository.vala',
+        'src/infrastructure/json/json_folder_repository.vala',
+        'src/infrastructure/json/json_note_asset_repository.vala'
+    ),
+    dependencies: [
+        dependency('glib-2.0'),
+        dependency('gio-2.0'),
+        dependency('json-glib-1.0'),
+        dependency('gee-0.8')
+    ]
+)
+
+test('json-notebook-repository', json_notebook_repository_test)
+
+sidebar_state_test = executable(
+    'sidebar-state-test',
+    files(
+        'tests/sidebar_state_test.vala',
+        'src/domain/note.vala',
+        'src/domain/folder.vala',
+        'src/application/notebook_catalog.vala',
+        'src/presentation/sidebar/sidebar_selection_model.vala',
+        'src/presentation/sidebar/sidebar_drag_item.vala'
+    ),
+    dependencies: [
+        dependency('glib-2.0'),
+        dependency('gee-0.8')
+    ]
+)
+
+test('sidebar-state', sidebar_state_test)
 
 gnome.post_install(
     gtk_update_icon_cache: true

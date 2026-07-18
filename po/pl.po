@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: knotes 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-18 11:53+0200\n"
+"POT-Creation-Date: 2026-07-18 14:51+0200\n"
 "PO-Revision-Date: 2026-06-21 00:00+0000\n"
 "Last-Translator: Krzysztof Chmielewski\n"
 "Language-Team: Polish\n"
@@ -17,47 +17,49 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 "
 "|| n%100>14) ? 1 : 2);\n"
 
-#: data/main_window.blp:19 src/presentation/window/main_window.vala:199
+#: data/main_window.blp:17 src/presentation/window/main_window.vala:127
 msgid "Collapse sidebar"
 msgstr "Zwiń pasek boczny"
 
-#: data/main_window.blp:27
+#: data/main_window.blp:25
 msgid "Menu"
 msgstr "Menu"
 
-#: data/main_window.blp:34
+#: data/main_window.blp:32
 msgid "Delete folder"
 msgstr "Usuń folder"
 
-#: data/main_window.blp:42 src/presentation/sidebar/folder_dialogs.vala:52
+#: data/main_window.blp:40 src/presentation/sidebar/folder_dialogs.vala:52
 msgid "Rename folder"
 msgstr "Zmień nazwę folderu"
 
-#: data/main_window.blp:50 src/presentation/sidebar/folder_dialogs.vala:10
+#: data/main_window.blp:48 src/presentation/sidebar/folder_dialogs.vala:10
 msgid "New folder"
 msgstr "Nowy folder"
 
-#: data/main_window.blp:57
+#: data/main_window.blp:55
 msgid "New note"
 msgstr "Nowa notatka"
 
-#: data/main_window.blp:72
+#: data/note_editor_pane.blp:15
 msgid "Select a note or create a new one"
 msgstr "Wybierz notatkę lub utwórz nową"
 
-#: data/main_window.blp:96
+#: data/note_editor_pane.blp:39
 msgid "Note title…"
 msgstr "Tytuł notatki…"
 
-#: data/main_window.blp:101 src/presentation/window/main_window.vala:182
+#: data/note_editor_pane.blp:44
+#: src/presentation/editor/note_editor_pane.vala:142
 msgid "Enable Markdown highlighting"
 msgstr "Włącz podświetlanie Markdown"
 
-#: data/main_window.blp:111 src/presentation/window/main_window.vala:282
+#: data/note_editor_pane.blp:54
+#: src/presentation/editor/note_editor_pane.vala:134
 msgid "Preview Markdown"
 msgstr "Podgląd Markdown"
 
-#: data/main_window.blp:117
+#: data/note_editor_pane.blp:60
 msgid "Delete note"
 msgstr "Usuń notatkę"
 
@@ -65,32 +67,73 @@ msgstr "Usuń notatkę"
 msgid "Search notes…"
 msgstr "Szukaj notatek…"
 
-#: src/presentation/window/main_window.vala:168
+#: src/presentation/window/main_window.vala:68
 #: src/presentation/tray/tray_manager.vala:238
 msgid "Quit"
 msgstr "Zakończ"
 
-#: src/presentation/window/main_window.vala:181
-msgid "Plain text mode"
-msgstr "Tryb zwykłego tekstu"
+#: src/presentation/window/main_window.vala:101
+msgid "Untitled"
+msgstr "Bez tytułu"
 
-#: src/presentation/window/main_window.vala:199
+#: src/presentation/window/main_window.vala:128
 msgid "Expand sidebar"
 msgstr "Rozwiń pasek boczny"
 
-#: src/presentation/window/main_window.vala:277
+#: src/presentation/editor/note_asset_import_controller.vala:63
+msgid "Could not read the image from the clipboard."
+msgstr "Nie udało się odczytać obrazu ze schowka."
+
+#: src/presentation/editor/note_asset_import_controller.vala:85
+msgid "Could not read files from the clipboard."
+msgstr "Nie udało się odczytać plików ze schowka."
+
+#: src/presentation/editor/note_asset_import_controller.vala:150
+msgid "The selected note no longer exists."
+msgstr "Wybrana notatka już nie istnieje."
+
+#: src/presentation/editor/note_asset_import_controller.vala:152
+#, c-format
+msgid "Unsupported image type%s."
+msgstr "Nieobsługiwany typ obrazu%s."
+
+#: src/presentation/editor/note_asset_import_controller.vala:154
+#, c-format
+msgid "The image%s could not be read."
+msgstr "Nie udało się odczytać obrazu%s."
+
+#: src/presentation/editor/note_asset_import_controller.vala:156
+#, c-format
+msgid "The image%s could not be saved."
+msgstr "Nie udało się zapisać obrazu%s."
+
+#: src/presentation/editor/note_asset_import_controller.vala:179
+msgid "Some images could not be added"
+msgstr "Nie udało się dodać niektórych obrazów"
+
+#: src/presentation/editor/note_asset_import_controller.vala:182
+#: src/presentation/sidebar/folder_dialogs.vala:98
+#: src/presentation/sidebar/folder_dialogs.vala:121
+msgid "Close"
+msgstr "Zamknij"
+
+#: src/presentation/editor/note_editor_pane.vala:130
 msgid "Edit Markdown"
 msgstr "Edytuj Markdown"
 
-#: src/presentation/window/main_window.vala:368
+#: src/presentation/editor/note_editor_pane.vala:141
+msgid "Plain text mode"
+msgstr "Tryb zwykłego tekstu"
+
+#: src/presentation/editor/note_editor_pane.vala:155
 msgid "Delete this note?"
 msgstr "Usunąć tę notatkę?"
 
-#: src/presentation/window/main_window.vala:370
+#: src/presentation/editor/note_editor_pane.vala:156
 msgid "This action cannot be undone."
 msgstr "Tej operacji nie można cofnąć."
 
-#: src/presentation/window/main_window.vala:371
+#: src/presentation/editor/note_editor_pane.vala:157
 #: src/presentation/sidebar/folder_dialogs.vala:13
 #: src/presentation/sidebar/folder_dialogs.vala:38
 #: src/presentation/sidebar/folder_dialogs.vala:55
@@ -98,16 +141,12 @@ msgstr "Tej operacji nie można cofnąć."
 msgid "Cancel"
 msgstr "Anuluj"
 
-#: src/presentation/window/main_window.vala:371
+#: src/presentation/editor/note_editor_pane.vala:157
 #: src/presentation/sidebar/folder_dialogs.vala:39
 msgid "Delete"
 msgstr "Usuń"
 
-#: src/presentation/window/main_window.vala:395
-msgid "Untitled"
-msgstr "Bez tytułu"
-
-#: src/presentation/sidebar/note_list_box.vala:48
+#: src/presentation/sidebar/note_list_box.vala:56
 #: src/presentation/sidebar/move_destination_dialog.vala:23
 msgid "All notes"
 msgstr "Wszystkie notatki"
@@ -163,11 +202,6 @@ msgstr "Nie udało się przenieść elementu."
 #: src/presentation/sidebar/folder_dialogs.vala:97
 msgid "Unable to move item"
 msgstr "Nie można przenieść elementu"
-
-#: src/presentation/sidebar/folder_dialogs.vala:98
-#: src/presentation/sidebar/folder_dialogs.vala:121
-msgid "Close"
-msgstr "Zamknij"
 
 #: src/presentation/sidebar/folder_dialogs.vala:107
 msgid "Folder name cannot be empty."

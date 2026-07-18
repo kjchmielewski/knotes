@@ -1,12 +1,12 @@
 namespace Knotes {
 
     public class CompactNoteRow : Gtk.ListBoxRow {
-        private const string DRAG_PAYLOAD_PREFIX = "note:";
         private Gtk.Label avatar_label;
+        private SidebarItemInteractions interactions;
 
         public string note_id { get; construct; }
 
-        public signal void move_requested(string id);
+        public signal void move_requested(SidebarDragItem item);
 
         public CompactNoteRow(Note note) {
             Object(note_id: note.id);
@@ -22,7 +22,8 @@ namespace Knotes {
             child = row_box;
 
             update(note);
-            configure_move_interactions();
+            interactions = new SidebarItemInteractions(this, SidebarDragItem.note(note.id));
+            interactions.move_requested.connect((item) => move_requested(item));
         }
 
         public void update(Note note) {
@@ -47,37 +48,5 @@ namespace Knotes {
             return avatar_text.str;
         }
 
-        private void configure_move_interactions() {
-            focusable = true;
-
-            var secondary_click = new Gtk.GestureClick();
-            secondary_click.button = Gdk.BUTTON_SECONDARY;
-            secondary_click.pressed.connect(() => move_requested(note_id));
-            add_controller(secondary_click);
-
-            var key_controller = new Gtk.EventControllerKey();
-            key_controller.key_pressed.connect((keyval, keycode, state) => {
-                var context_menu_key = keyval == Gdk.Key.Menu;
-                var shift_f10 = keyval == Gdk.Key.F10 &&
-                    (state & Gdk.ModifierType.SHIFT_MASK) != 0;
-                if (!context_menu_key && !shift_f10) {
-                    return false;
-                }
-                move_requested(note_id);
-                return true;
-            });
-            add_controller(key_controller);
-
-            var drag_source = new Gtk.DragSource();
-            drag_source.actions = Gdk.DragAction.MOVE;
-            drag_source.prepare.connect(() => create_drag_content(DRAG_PAYLOAD_PREFIX + note_id));
-            add_controller(drag_source);
-        }
-
-        private Gdk.ContentProvider create_drag_content(string payload) {
-            var value = Value(typeof(string));
-            value.set_string(payload);
-            return new Gdk.ContentProvider.for_value(value);
-        }
     }
 }
