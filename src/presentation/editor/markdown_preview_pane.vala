@@ -1,8 +1,5 @@
 namespace Knotes {
 
-    [CCode (cname = "cmark_markdown_to_html", cheader_filename = "cmark.h")]
-    private static extern string markdown_to_html(string markdown, size_t length, int options);
-
     public class MarkdownPreviewPane : Gtk.Box {
         private const string ASSET_URI_SCHEME = "knotes-asset";
 
@@ -22,7 +19,7 @@ namespace Knotes {
 
         public void render(string? note_id, string markdown) {
             current_note_id = note_id;
-            var rendered_markdown = markdown_to_html(markdown, markdown.length, 0);
+            var rendered_markdown = MarkdownRenderer.render(markdown);
             var base_uri = note_id != null
                 ? "%s://note/%s/".printf(
                     ASSET_URI_SCHEME,

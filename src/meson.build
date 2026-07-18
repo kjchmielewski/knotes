@@ -27,6 +27,7 @@ sources = files(
     'infrastructure/json/json_note_asset_repository.vala',
     'presentation/editor/autosave_coordinator.vala',
     'presentation/editor/markdown_editor_view.vala',
+    'presentation/editor/markdown_renderer.vala',
     'presentation/editor/markdown_preview_pane.vala',
     'presentation/editor/note_asset_import_controller.vala',
     'presentation/editor/note_editor_pane.vala',
