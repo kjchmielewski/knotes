@@ -37,6 +37,14 @@ template $KnotesMainWindow : Adw.ApplicationWindow {
       }
 
       [end]
+      Gtk.Button header_rename_folder_button {
+        icon-name: "document-edit-symbolic";
+        tooltip-text: _("Rename folder");
+        sensitive: false;
+        styles ["flat", "circular"]
+      }
+
+      [end]
       Gtk.Button header_new_folder_button {
         icon-name: "folder-new-symbolic";
         tooltip-text: _("New folder");

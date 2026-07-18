@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: knotes\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-18 10:32+0200\n"
+"POT-Creation-Date: 2026-07-18 11:53+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: data/main_window.blp:19 src/presentation/window/main_window.vala:195
+#: data/main_window.blp:19 src/presentation/window/main_window.vala:199
 msgid "Collapse sidebar"
 msgstr ""
 
@@ -29,31 +29,35 @@ msgstr ""
 msgid "Delete folder"
 msgstr ""
 
-#: data/main_window.blp:42 src/presentation/sidebar/folder_dialogs.vala:9
+#: data/main_window.blp:42 src/presentation/sidebar/folder_dialogs.vala:52
+msgid "Rename folder"
+msgstr ""
+
+#: data/main_window.blp:50 src/presentation/sidebar/folder_dialogs.vala:10
 msgid "New folder"
 msgstr ""
 
-#: data/main_window.blp:49
+#: data/main_window.blp:57
 msgid "New note"
 msgstr ""
 
-#: data/main_window.blp:64
+#: data/main_window.blp:72
 msgid "Select a note or create a new one"
 msgstr ""
 
-#: data/main_window.blp:88
+#: data/main_window.blp:96
 msgid "Note title…"
 msgstr ""
 
-#: data/main_window.blp:93 src/presentation/window/main_window.vala:178
+#: data/main_window.blp:101 src/presentation/window/main_window.vala:182
 msgid "Enable Markdown highlighting"
 msgstr ""
 
-#: data/main_window.blp:103 src/presentation/window/main_window.vala:278
+#: data/main_window.blp:111 src/presentation/window/main_window.vala:282
 msgid "Preview Markdown"
 msgstr ""
 
-#: data/main_window.blp:109
+#: data/main_window.blp:117
 msgid "Delete note"
 msgstr ""
 
@@ -61,44 +65,45 @@ msgstr ""
 msgid "Search notes…"
 msgstr ""
 
-#: src/presentation/window/main_window.vala:164
+#: src/presentation/window/main_window.vala:168
 #: src/presentation/tray/tray_manager.vala:238
 msgid "Quit"
 msgstr ""
 
-#: src/presentation/window/main_window.vala:177
+#: src/presentation/window/main_window.vala:181
 msgid "Plain text mode"
 msgstr ""
 
-#: src/presentation/window/main_window.vala:195
+#: src/presentation/window/main_window.vala:199
 msgid "Expand sidebar"
 msgstr ""
 
-#: src/presentation/window/main_window.vala:273
+#: src/presentation/window/main_window.vala:277
 msgid "Edit Markdown"
 msgstr ""
 
-#: src/presentation/window/main_window.vala:364
+#: src/presentation/window/main_window.vala:368
 msgid "Delete this note?"
 msgstr ""
 
-#: src/presentation/window/main_window.vala:366
+#: src/presentation/window/main_window.vala:370
 msgid "This action cannot be undone."
 msgstr ""
 
-#: src/presentation/window/main_window.vala:367
-#: src/presentation/sidebar/folder_dialogs.vala:12
-#: src/presentation/sidebar/folder_dialogs.vala:37
+#: src/presentation/window/main_window.vala:371
+#: src/presentation/sidebar/folder_dialogs.vala:13
+#: src/presentation/sidebar/folder_dialogs.vala:38
+#: src/presentation/sidebar/folder_dialogs.vala:55
 #: src/presentation/sidebar/move_destination_dialog.vala:74
 msgid "Cancel"
 msgstr ""
 
-#: src/presentation/window/main_window.vala:367
-#: src/presentation/sidebar/folder_dialogs.vala:38
+#: src/presentation/window/main_window.vala:371
+#: src/presentation/sidebar/folder_dialogs.vala:39
 msgid "Delete"
 msgstr ""
 
-#: src/presentation/window/main_window.vala:391
+#: src/presentation/window/main_window.vala:395
 msgid "Untitled"
 msgstr ""
 
@@ -107,52 +112,81 @@ msgstr ""
 msgid "All notes"
 msgstr ""
 
-#: src/presentation/sidebar/folder_dialogs.vala:10
+#: src/presentation/sidebar/folder_dialogs.vala:11
 msgid "Enter a name for the new folder."
 msgstr ""
 
-#: src/presentation/sidebar/folder_dialogs.vala:13
+#: src/presentation/sidebar/folder_dialogs.vala:14
 msgid "Create"
 msgstr ""
 
-#: src/presentation/sidebar/folder_dialogs.vala:18
+#: src/presentation/sidebar/folder_dialogs.vala:19
 msgid "Folder name"
 msgstr ""
 
-#: src/presentation/sidebar/folder_dialogs.vala:34
+#: src/presentation/sidebar/folder_dialogs.vala:35
 msgid "Delete folder?"
 msgstr ""
 
-#: src/presentation/sidebar/folder_dialogs.vala:35
+#: src/presentation/sidebar/folder_dialogs.vala:36
 msgid "Notes and subfolders will be moved to the parent folder."
 msgstr ""
 
 #: src/presentation/sidebar/folder_dialogs.vala:53
-msgid "The item no longer exists."
+msgid "Enter a new name for the folder."
 msgstr ""
 
 #: src/presentation/sidebar/folder_dialogs.vala:56
+msgid "Rename"
+msgstr ""
+
+#: src/presentation/sidebar/folder_dialogs.vala:81
+msgid "The item no longer exists."
+msgstr ""
+
+#: src/presentation/sidebar/folder_dialogs.vala:84
 msgid "The destination folder no longer exists."
 msgstr ""
 
-#: src/presentation/sidebar/folder_dialogs.vala:59
+#: src/presentation/sidebar/folder_dialogs.vala:87
 msgid "A folder cannot be moved into itself or one of its subfolders."
 msgstr ""
 
-#: src/presentation/sidebar/folder_dialogs.vala:62
+#: src/presentation/sidebar/folder_dialogs.vala:90
 msgid "The change could not be saved. Your notes were left unchanged."
 msgstr ""
 
-#: src/presentation/sidebar/folder_dialogs.vala:65
+#: src/presentation/sidebar/folder_dialogs.vala:93
 msgid "The item could not be moved."
 msgstr ""
 
-#: src/presentation/sidebar/folder_dialogs.vala:69
+#: src/presentation/sidebar/folder_dialogs.vala:97
 msgid "Unable to move item"
 msgstr ""
 
-#: src/presentation/sidebar/folder_dialogs.vala:70
+#: src/presentation/sidebar/folder_dialogs.vala:98
+#: src/presentation/sidebar/folder_dialogs.vala:121
 msgid "Close"
+msgstr ""
+
+#: src/presentation/sidebar/folder_dialogs.vala:107
+msgid "Folder name cannot be empty."
+msgstr ""
+
+#: src/presentation/sidebar/folder_dialogs.vala:110
+msgid "The folder no longer exists."
+msgstr ""
+
+#: src/presentation/sidebar/folder_dialogs.vala:113
+msgid "The new name could not be saved. The previous name was restored."
+msgstr ""
+
+#: src/presentation/sidebar/folder_dialogs.vala:116
+msgid "The folder could not be renamed."
+msgstr ""
+
+#: src/presentation/sidebar/folder_dialogs.vala:120
+msgid "Unable to rename folder"
 msgstr ""
 
 #: src/presentation/sidebar/move_destination_dialog.vala:18

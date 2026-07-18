@@ -35,6 +35,7 @@ notebook_application_test = executable(
         'src/domain/folder.vala',
         'src/application/notebook_catalog.vala',
         'src/application/move_result.vala',
+        'src/application/rename_folder_result.vala',
         'src/application/ports/notebook_repository.vala',
         'src/application/notebook_service.vala'
     ),

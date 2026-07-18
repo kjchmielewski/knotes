@@ -8,6 +8,7 @@ sources = files(
     'domain/folder.vala',
     'application/notebook_catalog.vala',
     'application/move_result.vala',
+    'application/rename_folder_result.vala',
     'application/ports/notebook_repository.vala',
     'application/notebook_service.vala',
     'infrastructure/json/note_json_mapper.vala',

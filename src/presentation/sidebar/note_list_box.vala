@@ -40,7 +40,7 @@ namespace Knotes {
         }
 
         public signal void note_selected(string? id);
-        public signal void folder_selection_changed(bool can_delete);
+        public signal void folder_selection_changed(bool has_folder_selection);
 
         public NoteListBox(NotebookService notebook_service) {
             Object();
@@ -69,6 +69,7 @@ namespace Knotes {
             folder_tree.folder_move_requested.connect(move_folder);
             folder_dialogs.folder_creation_requested.connect(on_folder_creation_requested);
             folder_dialogs.folder_deletion_requested.connect(delete_folder);
+            folder_dialogs.folder_rename_requested.connect(rename_folder);
             move_destination_dialog.note_destination_selected.connect(move_note);
             move_destination_dialog.folder_destination_selected.connect(move_folder);
             notebook_service.external_note_updated.connect(on_external_note_updated);
@@ -253,6 +254,20 @@ namespace Knotes {
             folder_dialogs.show_delete_folder(this, folder);
         }
 
+        public void show_rename_folder_dialog() {
+            if (selected_folder_id == null) {
+                return;
+            }
+
+            var folder = catalog.find_folder(selected_folder_id);
+            if (folder == null) {
+                select_folder(null);
+                return;
+            }
+
+            folder_dialogs.show_rename_folder(this, folder);
+        }
+
         private void on_folder_creation_requested(string name, string? parent_id) {
             var folder = notebook_service.create_folder(name, parent_id);
             if (folder == null) {
@@ -271,6 +286,19 @@ namespace Knotes {
                 return;
             }
             select_folder(parent_id);
+            rebuild_tree_views();
+        }
+
+        private void rename_folder(string folder_id, string new_name) {
+            var result = notebook_service.rename_folder(folder_id, new_name);
+            if (result == RenameFolderResult.UNCHANGED) {
+                return;
+            }
+            if (result != RenameFolderResult.RENAMED) {
+                folder_dialogs.show_rename_error(this, result);
+                return;
+            }
+
             rebuild_tree_views();
         }
 

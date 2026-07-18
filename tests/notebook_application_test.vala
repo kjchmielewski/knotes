@@ -6,6 +6,7 @@ namespace Knotes.Tests {
 
         public bool fail_note_saves { get; set; default = false; }
         public bool fail_folder_saves { get; set; default = false; }
+        public int folder_save_count { get; private set; default = 0; }
 
         public void seed_note(Note note) {
             notes[note.id] = note;
@@ -47,6 +48,7 @@ namespace Knotes.Tests {
         }
 
         public override void save_folders(GLib.List<Folder> saved_folders) throws GLib.Error {
+            folder_save_count++;
             if (fail_folder_saves) {
                 throw new GLib.IOError.FAILED("Simulated folder save failure");
             }
@@ -163,6 +165,51 @@ namespace Knotes.Tests {
         assert(service.find_note("note").folder_id == "deleted");
     }
 
+    private void test_rename_folder_normalizes_name_and_preserves_identity() {
+        var repository = new InMemoryNotebookRepository();
+        repository.seed_folder(new Folder("parent", "Parent"));
+        repository.seed_folder(new Folder("folder", "Old name", "parent"));
+        repository.seed_folder(new Folder("child", "Child", "folder"));
+        repository.seed_note(create_note("note", "Note", "", "folder", 10));
+        var service = new NotebookService(repository);
+
+        assert(service.rename_folder("folder", "  New name  ") == RenameFolderResult.RENAMED);
+
+        var renamed_folder = service.catalog.find_folder("folder");
+        assert(renamed_folder != null);
+        assert(renamed_folder.id == "folder");
+        assert(renamed_folder.name == "New name");
+        assert(renamed_folder.parent_id == "parent");
+        assert(service.catalog.find_folder("child").parent_id == "folder");
+        assert(service.find_note("note").folder_id == "folder");
+        assert(repository.folder_save_count == 1);
+    }
+
+    private void test_rename_folder_rejects_invalid_and_unchanged_names() {
+        var repository = new InMemoryNotebookRepository();
+        repository.seed_folder(new Folder("folder", "Name"));
+        var service = new NotebookService(repository);
+
+        assert(service.rename_folder("missing", "New") == RenameFolderResult.SOURCE_NOT_FOUND);
+        assert(service.rename_folder("folder", "   ") == RenameFolderResult.INVALID_NAME);
+        assert(service.rename_folder("folder", " Name ") == RenameFolderResult.UNCHANGED);
+        assert(service.catalog.find_folder("folder").name == "Name");
+        assert(repository.folder_save_count == 0);
+    }
+
+    private void test_rename_folder_rolls_back_when_save_fails() {
+        var repository = new InMemoryNotebookRepository();
+        repository.seed_folder(new Folder("folder", "Old name"));
+        var service = new NotebookService(repository);
+
+        repository.fail_folder_saves = true;
+        Test.expect_message(null, LogLevelFlags.LEVEL_WARNING, "*Failed to rename folder*");
+        assert(service.rename_folder("folder", "New name") == RenameFolderResult.STORAGE_ERROR);
+        Test.assert_expected_messages();
+        assert(service.catalog.find_folder("folder").name == "Old name");
+        assert(repository.folder_save_count == 1);
+    }
+
     private void test_move_note_between_folder_and_root() {
         var repository = new InMemoryNotebookRepository();
         repository.seed_folder(new Folder("target", "Target"));
@@ -248,6 +295,18 @@ namespace Knotes.Tests {
         Test.add_func(
             "/notebook-service/delete-folder-rolls-back-on-save-failure",
             test_delete_folder_rolls_back_when_folder_save_fails
+        );
+        Test.add_func(
+            "/notebook-service/rename-folder-normalizes-name-and-preserves-identity",
+            test_rename_folder_normalizes_name_and_preserves_identity
+        );
+        Test.add_func(
+            "/notebook-service/rename-folder-rejects-invalid-and-unchanged-names",
+            test_rename_folder_rejects_invalid_and_unchanged_names
+        );
+        Test.add_func(
+            "/notebook-service/rename-folder-rolls-back-on-save-failure",
+            test_rename_folder_rolls_back_when_save_fails
         );
         Test.add_func(
             "/notebook-service/move-note-between-folder-and-root",

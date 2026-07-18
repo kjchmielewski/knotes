@@ -57,7 +57,7 @@ namespace Knotes {
         }
 
         public Folder? create_folder(string name, string? parent_id) {
-            var normalized_name = name.strip();
+            var normalized_name = normalize_folder_name(name);
             if (normalized_name.length == 0) {
                 return null;
             }
@@ -71,6 +71,32 @@ namespace Knotes {
                 catalog.remove_folder(folder.id);
                 warning("Failed to create folder '%s': %s", folder.id, error.message);
                 return null;
+            }
+        }
+
+        public RenameFolderResult rename_folder(string folder_id, string new_name) {
+            var folder = catalog.find_folder(folder_id);
+            if (folder == null) {
+                return RenameFolderResult.SOURCE_NOT_FOUND;
+            }
+
+            var normalized_name = normalize_folder_name(new_name);
+            if (normalized_name.length == 0) {
+                return RenameFolderResult.INVALID_NAME;
+            }
+            if (folder.name == normalized_name) {
+                return RenameFolderResult.UNCHANGED;
+            }
+
+            var previous_name = folder.name;
+            folder.name = normalized_name;
+            try {
+                persist_folders();
+                return RenameFolderResult.RENAMED;
+            } catch (GLib.Error error) {
+                folder.name = previous_name;
+                warning("Failed to rename folder '%s': %s", folder.id, error.message);
+                return RenameFolderResult.STORAGE_ERROR;
             }
         }
 
@@ -226,6 +252,10 @@ namespace Knotes {
                 folders.append(folder);
             }
             repository.save_folders(folders);
+        }
+
+        private string normalize_folder_name(string name) {
+            return name.strip();
         }
 
         private void on_repository_note_updated(string id) {

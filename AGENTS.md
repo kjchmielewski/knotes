@@ -46,6 +46,8 @@ Dependencies point inward: presentation calls application services, application 
 
 Moving notes and folders is an application use case. Keep destination validation and cycle detection in `NotebookCatalog`/`NotebookService`; presentation code may pre-filter invalid drop targets but must still handle every `MoveResult`. Folder moves must reject the folder itself and all descendants. Preserve selected IDs, the search query, and expanded folder state when rebuilding the sidebar after a move.
 
+Renaming a folder is also an application use case. Normalize and validate names in `NotebookService`, return a `RenameFolderResult`, and restore the previous name if persistence fails. Rebuild the derived sidebar tree after a successful rename so labels and destination paths stay consistent without changing the selected folder ID.
+
 Translatable UI strings should go through the gettext helper in `src/i18n.vala`. When adding new files with user-visible strings, update `po/POTFILES`.
 
 ## Testing Guidelines
@@ -53,6 +55,8 @@ Translatable UI strings should go through the gettext helper in `src/i18n.vala`.
 Treat `meson compile -C builddir` and `meson test -C builddir --print-errorlogs` as the minimum verification. Add GLib tests for domain and application behavior, especially folder hierarchy, search, and persistence-independent rules. For UI, tray, persistence, or translation work, also run the app manually with the relevant flags. Check note files under `~/.local/share/knotes/notes/` when changing storage behavior.
 
 For move behavior, test note moves between folders and the root, folder moves between parents and the top level, no-op moves, missing destinations, cycle rejection, and persistence rollback. Manually verify both drag-and-drop and the keyboard-accessible move dialog (`Shift+F10` on a focused note or folder).
+
+For rename behavior, test whitespace normalization, empty and unchanged names, missing folders, successful persistence, and rollback after a storage error. Manually verify that the selected folder, active search, and expanded tree state survive the rebuild.
 
 ## Commit & Pull Request Guidelines
 

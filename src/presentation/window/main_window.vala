@@ -21,6 +21,8 @@ namespace Knotes {
         [GtkChild]
         private unowned Gtk.Button header_new_folder_button;
         [GtkChild]
+        private unowned Gtk.Button header_rename_folder_button;
+        [GtkChild]
         private unowned Gtk.Button header_delete_folder_button;
         [GtkChild]
         private unowned Gtk.ToggleButton sidebar_toggle_button;
@@ -144,13 +146,15 @@ namespace Knotes {
 
         private void connect_signals() {
             note_list.note_selected.connect(on_note_selected);
-            note_list.folder_selection_changed.connect((can_delete) => {
-                header_delete_folder_button.sensitive = can_delete;
+            note_list.folder_selection_changed.connect((has_folder_selection) => {
+                header_rename_folder_button.sensitive = has_folder_selection;
+                header_delete_folder_button.sensitive = has_folder_selection;
             });
             sidebar_toggle_button.toggled.connect(on_sidebar_toggle);
             main_paned.notify["position"].connect(on_sidebar_position_changed);
             header_new_button.clicked.connect(on_new_note);
             header_new_folder_button.clicked.connect(note_list.show_new_folder_dialog);
+            header_rename_folder_button.clicked.connect(note_list.show_rename_folder_dialog);
             header_delete_folder_button.clicked.connect(note_list.show_delete_folder_dialog);
             delete_button.clicked.connect(on_delete_note);
             markdown_highlighting_toggle_button.toggled.connect(on_markdown_highlighting_toggled);
