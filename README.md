@@ -27,6 +27,7 @@ A simple note-taking application built with **Vala**, **GTK4**, **Libadwaita**, 
 - `gettext`
 - `json-glib-1.0`
 - `gee-0.8`
+- `libmarkdown` (Discount 3.x)
 
 ### Install dependencies (Ubuntu/Debian)
 
@@ -34,16 +35,19 @@ A simple note-taking application built with **Vala**, **GTK4**, **Libadwaita**, 
 sudo apt install valac meson blueprint-compiler gettext libglib2.0-dev libgtk-4-dev libadwaita-1-dev libjson-glib-dev libgee-0.8-dev
 ```
 
+Debian and Ubuntu currently package Discount 2.x. Install the Discount 3.x
+development files from upstream before configuring Knotes.
+
 ### Install dependencies (Fedora)
 
 ```bash
-sudo dnf install valac meson blueprint-compiler gettext glib2-devel gtk4-devel libadwaita-devel json-glib-devel libgee-devel
+sudo dnf install valac meson blueprint-compiler gettext glib2-devel gtk4-devel libadwaita-devel json-glib-devel libgee-devel discount-devel
 ```
 
 ### Install dependencies (openSUSE)
 
 ```bash
-sudo zypper install valac meson blueprint-compiler gettext-tools glib2-devel gtk4-devel libadwaita-devel json-glib-devel libgee-devel
+sudo zypper install valac meson blueprint-compiler gettext-tools glib2-devel gtk4-devel libadwaita-devel json-glib-devel libgee-devel libmarkdown-devel
 ```
 
 ## Build and Run

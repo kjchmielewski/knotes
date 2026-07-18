@@ -19,14 +19,31 @@ namespace Knotes {
 
         public void render(string? note_id, string markdown) {
             current_note_id = note_id;
-            var rendered_markdown = MarkdownRenderer.render(markdown);
+            var flags = new Markdown.DocumentFlags();
+            flags.enable(Markdown.Option.NOHTML);
+            flags.enable(Markdown.Option.SAFELINK);
+            var document = new Markdown.Document.from_gfm_string(
+                markdown,
+                markdown.length,
+                flags
+            );
+            if (!document.compile(flags)) {
+                warning("Failed to compile Markdown preview");
+                return;
+            }
+
+            char* rendered_markdown;
+            var rendered_length = document.document(out rendered_markdown);
+            var rendered_html = rendered_length > 0 && rendered_markdown != null
+                ? (string) rendered_markdown
+                : "";
             var base_uri = note_id != null
                 ? "%s://note/%s/".printf(
                     ASSET_URI_SCHEME,
                     Uri.escape_string(note_id, null, false)
                 )
                 : null;
-            web_view.load_html(build_document(rendered_markdown), base_uri);
+            web_view.load_html(build_document(rendered_html), base_uri);
         }
 
         private void configure_web_view() {

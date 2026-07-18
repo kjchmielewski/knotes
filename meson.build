@@ -101,20 +101,17 @@ sidebar_state_test = executable(
 
 test('sidebar-state', sidebar_state_test)
 
-markdown_renderer_test = executable(
-    'markdown-renderer-test',
-    files(
-        'tests/markdown_renderer_test.vala',
-        'src/presentation/editor/markdown_renderer.vala'
-    ),
+markdown_rendering_test = executable(
+    'markdown-rendering-test',
+    files('tests/markdown_rendering_test.vala'),
+    libmarkdown_vapi,
     dependencies: [
         dependency('glib-2.0'),
-        dependency('gobject-2.0'),
-        cmark_dependency
+        markdown_dependency
     ]
 )
 
-test('markdown-renderer', markdown_renderer_test)
+test('markdown-rendering', markdown_rendering_test)
 
 gnome.post_install(
     gtk_update_icon_cache: true

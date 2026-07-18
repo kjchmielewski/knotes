@@ -27,7 +27,6 @@ sources = files(
     'infrastructure/json/json_note_asset_repository.vala',
     'presentation/editor/autosave_coordinator.vala',
     'presentation/editor/markdown_editor_view.vala',
-    'presentation/editor/markdown_renderer.vala',
     'presentation/editor/markdown_preview_pane.vala',
     'presentation/editor/note_asset_import_controller.vala',
     'presentation/editor/note_editor_pane.vala',
@@ -48,7 +47,18 @@ sources = files(
 sources += config_file
 
 cc = meson.get_compiler('c')
-cmark_dependency = cc.find_library('cmark', required: true)
+markdown_package = dependency('libmarkdown', version: '>=3.0')
+markdown_library = cc.find_library(
+    'markdown',
+    dirs: markdown_package.get_variable(pkgconfig: 'libdir')
+)
+markdown_dependency = declare_dependency(
+    dependencies: markdown_library,
+    include_directories: include_directories(
+        markdown_package.get_variable(pkgconfig: 'includedir')
+    )
+)
+libmarkdown_vapi = files('../vapi/libmarkdown.vapi')
 
 blueprint_compiler = find_program('blueprint-compiler')
 
@@ -99,12 +109,13 @@ dependencies = [
     dependency('gdk-pixbuf-2.0'),
     dependency('json-glib-1.0'),
     dependency('gee-0.8'),
-    cmark_dependency
+    markdown_dependency
 ]
 
 executable(
     meson.project_name(),
     sources,
+    libmarkdown_vapi,
     resources,
     dependencies: dependencies,
     c_args: ['-DGETTEXT_PACKAGE="@0@"'.format(gettext_package)],
