@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: knotes\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-18 15:21+0200\n"
+"POT-Creation-Date: 2026-07-18 17:41+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: data/main_window.blp:17 src/presentation/window/main_window.vala:127
+#: data/main_window.blp:17 src/presentation/window/main_window.vala:128
 msgid "Collapse sidebar"
 msgstr ""
 
@@ -50,16 +50,20 @@ msgid "Note title…"
 msgstr ""
 
 #: data/note_editor_pane.blp:44
-#: src/presentation/editor/note_editor_pane.vala:142
+#: src/presentation/editor/note_editor_pane.vala:146
 msgid "Enable Markdown highlighting"
 msgstr ""
 
 #: data/note_editor_pane.blp:54
-#: src/presentation/editor/note_editor_pane.vala:134
+#: src/presentation/editor/note_editor_pane.vala:138
 msgid "Preview Markdown"
 msgstr ""
 
 #: data/note_editor_pane.blp:60
+msgid "Duplicate note"
+msgstr ""
+
+#: data/note_editor_pane.blp:66
 msgid "Delete note"
 msgstr ""
 
@@ -72,11 +76,11 @@ msgstr ""
 msgid "Quit"
 msgstr ""
 
-#: src/presentation/window/main_window.vala:101
+#: src/presentation/window/main_window.vala:102
 msgid "Untitled"
 msgstr ""
 
-#: src/presentation/window/main_window.vala:128
+#: src/presentation/window/main_window.vala:129
 msgid "Expand sidebar"
 msgstr ""
 
@@ -89,6 +93,7 @@ msgid "Could not read files from the clipboard."
 msgstr ""
 
 #: src/presentation/editor/note_asset_import_controller.vala:150
+#: src/presentation/editor/note_editor_pane.vala:178
 msgid "The selected note no longer exists."
 msgstr ""
 
@@ -112,28 +117,42 @@ msgid "Some images could not be added"
 msgstr ""
 
 #: src/presentation/editor/note_asset_import_controller.vala:182
+#: src/presentation/editor/note_editor_pane.vala:181
 #: src/presentation/sidebar/folder_dialogs.vala:98
 #: src/presentation/sidebar/folder_dialogs.vala:121
 msgid "Close"
 msgstr ""
 
-#: src/presentation/editor/note_editor_pane.vala:130
+#: src/presentation/editor/note_editor_pane.vala:134
 msgid "Edit Markdown"
 msgstr ""
 
-#: src/presentation/editor/note_editor_pane.vala:141
+#: src/presentation/editor/note_editor_pane.vala:145
 msgid "Plain text mode"
 msgstr ""
 
-#: src/presentation/editor/note_editor_pane.vala:155
+#: src/presentation/editor/note_editor_pane.vala:167
+#, c-format
+msgid "%s (copy)"
+msgstr ""
+
+#: src/presentation/editor/note_editor_pane.vala:179
+msgid "The copy could not be saved. The original note was left unchanged."
+msgstr ""
+
+#: src/presentation/editor/note_editor_pane.vala:180
+msgid "Unable to duplicate note"
+msgstr ""
+
+#: src/presentation/editor/note_editor_pane.vala:190
 msgid "Delete this note?"
 msgstr ""
 
-#: src/presentation/editor/note_editor_pane.vala:156
+#: src/presentation/editor/note_editor_pane.vala:191
 msgid "This action cannot be undone."
 msgstr ""
 
-#: src/presentation/editor/note_editor_pane.vala:157
+#: src/presentation/editor/note_editor_pane.vala:192
 #: src/presentation/sidebar/folder_dialogs.vala:13
 #: src/presentation/sidebar/folder_dialogs.vala:38
 #: src/presentation/sidebar/folder_dialogs.vala:55
@@ -141,7 +160,7 @@ msgstr ""
 msgid "Cancel"
 msgstr ""
 
-#: src/presentation/editor/note_editor_pane.vala:157
+#: src/presentation/editor/note_editor_pane.vala:192
 #: src/presentation/sidebar/folder_dialogs.vala:39
 msgid "Delete"
 msgstr ""

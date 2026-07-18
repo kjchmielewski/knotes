@@ -87,6 +87,7 @@ namespace Knotes {
                 header_delete_folder_button.sensitive = has_folder_selection;
             });
             editor_pane.note_changed.connect(note_list.refresh_note);
+            editor_pane.note_duplicated.connect(note_list.show_created_note);
             editor_pane.note_deleted.connect(note_list.refresh_after_note_deletion);
             sidebar_toggle_button.toggled.connect(on_sidebar_toggle);
             main_paned.notify["position"].connect(on_sidebar_position_changed);

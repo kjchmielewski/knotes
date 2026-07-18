@@ -20,6 +20,8 @@ namespace Knotes {
         [GtkChild]
         private unowned Gtk.ToggleButton preview_toggle_button;
         [GtkChild]
+        private unowned Gtk.Button duplicate_button;
+        [GtkChild]
         private unowned Gtk.Button delete_button;
 
         private NoteService note_service;
@@ -31,6 +33,7 @@ namespace Knotes {
         private bool is_loading_note = false;
 
         public signal void note_changed(Note note);
+        public signal void note_duplicated(Note note);
         public signal void note_deleted();
 
         public NoteEditorPane(NoteService note_service, NoteAssetService asset_service) {
@@ -77,6 +80,7 @@ namespace Knotes {
         private void connect_signals() {
             title_entry.changed.connect(on_note_modified);
             editor.buffer.changed.connect(on_note_modified);
+            duplicate_button.clicked.connect(on_duplicate_note);
             delete_button.clicked.connect(on_delete_note);
             preview_toggle_button.toggled.connect(on_preview_toggled);
             markdown_highlighting_toggle_button.toggled.connect(on_highlighting_toggled);
@@ -146,6 +150,37 @@ namespace Knotes {
             markdown_highlighting_icon.resource = Adw.StyleManager.get_default().dark
                 ? PLAIN_TEXT_ICON_DARK_RESOURCE
                 : PLAIN_TEXT_ICON_LIGHT_RESOURCE;
+        }
+
+        private void on_duplicate_note() {
+            if (current_note_id == null) {
+                return;
+            }
+
+            autosave.flush();
+            var source = note_service.find_note(current_note_id);
+            if (source == null) {
+                show_duplicate_error(DuplicateNoteStatus.SOURCE_NOT_FOUND);
+                return;
+            }
+
+            var duplicate_title = _("%s (copy)").printf(source.title);
+            var result = note_service.duplicate_note(source.id, duplicate_title);
+            if (result.status == DuplicateNoteStatus.DUPLICATED && result.note != null) {
+                note_duplicated(result.note);
+                return;
+            }
+            show_duplicate_error(result.status);
+        }
+
+        private void show_duplicate_error(DuplicateNoteStatus status) {
+            var message = status == DuplicateNoteStatus.SOURCE_NOT_FOUND
+                ? _("The selected note no longer exists.")
+                : _("The copy could not be saved. The original note was left unchanged.");
+            var dialog = new Adw.AlertDialog(_("Unable to duplicate note"), message);
+            dialog.add_response("close", _("Close"));
+            dialog.close_response = "close";
+            dialog.present(this);
         }
 
         private void on_delete_note() {

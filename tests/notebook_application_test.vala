@@ -8,6 +8,7 @@ namespace Knotes.Tests {
         public bool fail_folder_saves { get; set; default = false; }
         public GLib.Error? asset_error { get; set; default = null; }
         public int folder_save_count { get; private set; default = 0; }
+        public int asset_copy_count { get; private set; default = 0; }
 
         public void seed_note(Note note) {
             notes[note.id] = note;
@@ -72,6 +73,17 @@ namespace Knotes.Tests {
             return new AssetContent(new GLib.Bytes("image".data), "image/png");
         }
 
+        public void copy_referenced_assets(
+            string source_note_id,
+            string destination_note_id,
+            string content
+        ) throws GLib.Error {
+            if (asset_error != null) {
+                throw asset_error;
+            }
+            asset_copy_count++;
+        }
+
         public GLib.List<Folder> list_folders() {
             var result = new GLib.List<Folder>();
             foreach (var folder in folders.values) {
@@ -101,7 +113,7 @@ namespace Knotes.Tests {
         public TestServices(InMemoryNotebookRepository repository) {
             var workspace = new NotebookWorkspace(repository, repository);
             catalog = workspace.catalog;
-            notes = new NoteService(repository, workspace);
+            notes = new NoteService(repository, repository, workspace);
             folders = new FolderService(repository, repository, workspace);
             assets = new NoteAssetService(repository, workspace);
         }
@@ -113,6 +125,9 @@ namespace Knotes.Tests {
         }
         public MoveResult move_note(string id, string? destination_id) {
             return notes.move_note(id, destination_id);
+        }
+        public DuplicateNoteResult duplicate_note(string id, string title) {
+            return notes.duplicate_note(id, title);
         }
         public MoveResult move_folder(string id, string? destination_id) {
             return folders.move_folder(id, destination_id);
@@ -346,6 +361,72 @@ namespace Knotes.Tests {
         assert(service.find_note("note").folder_id == "");
     }
 
+    private void test_duplicate_note_copies_content_and_identity_context() {
+        var repository = new InMemoryNotebookRepository();
+        repository.seed_folder(new Folder("folder", "Folder"));
+        var source = create_note(
+            "note",
+            "Original",
+            "Body ![Image](assets/image.png)",
+            "folder",
+            10
+        );
+        repository.seed_note(source);
+        var service = new TestServices(repository);
+
+        var result = service.duplicate_note("note", "Original (copy)");
+
+        assert(result.status == DuplicateNoteStatus.DUPLICATED);
+        assert(result.note != null);
+        var duplicate = result.note;
+        assert(duplicate.id != source.id);
+        assert(duplicate.title == "Original (copy)");
+        assert(duplicate.content == source.content);
+        assert(duplicate.folder_id == source.folder_id);
+        assert(duplicate.created_at.compare(source.created_at) > 0);
+        assert(duplicate.updated_at.compare(source.updated_at) > 0);
+        assert(service.find_note(duplicate.id) == duplicate);
+        assert(source.title == "Original");
+        assert(repository.asset_copy_count == 1);
+    }
+
+    private void test_duplicate_note_reports_missing_source_and_save_failure() {
+        var repository = new InMemoryNotebookRepository();
+        repository.seed_note(create_note("note", "Original", "Body", "", 10));
+        var service = new TestServices(repository);
+
+        var missing_result = service.duplicate_note("missing", "Missing (copy)");
+        assert(missing_result.status == DuplicateNoteStatus.SOURCE_NOT_FOUND);
+        assert(missing_result.note == null);
+
+        repository.fail_note_saves = true;
+        Test.expect_message(null, LogLevelFlags.LEVEL_WARNING, "*Failed to duplicate note*");
+        var failed_result = service.duplicate_note("note", "Original (copy)");
+        Test.assert_expected_messages();
+        assert(failed_result.status == DuplicateNoteStatus.STORAGE_ERROR);
+        assert(failed_result.note == null);
+        assert(repository.list_notes().length() == 1);
+        assert(service.catalog.notes_sorted_by_creation().size == 1);
+        assert(repository.asset_copy_count == 0);
+    }
+
+    private void test_duplicate_note_rolls_back_after_asset_failure() {
+        var repository = new InMemoryNotebookRepository();
+        repository.seed_note(create_note("note", "Original", "Body", "", 10));
+        var service = new TestServices(repository);
+        repository.asset_error = new GLib.IOError.FAILED("Simulated asset copy failure");
+
+        Test.expect_message(null, LogLevelFlags.LEVEL_WARNING, "*Failed to duplicate note*");
+        var result = service.duplicate_note("note", "Original (copy)");
+        Test.assert_expected_messages();
+
+        assert(result.status == DuplicateNoteStatus.STORAGE_ERROR);
+        assert(result.note == null);
+        assert(repository.list_notes().length() == 1);
+        assert(service.catalog.notes_sorted_by_creation().size == 1);
+        assert(service.find_note("note") != null);
+    }
+
     private void test_move_folder_changes_parent_and_rejects_cycles() {
         var repository = new InMemoryNotebookRepository();
         repository.seed_folder(new Folder("first", "First"));
@@ -489,6 +570,18 @@ namespace Knotes.Tests {
         Test.add_func(
             "/note-service/move-note-validates-and-rolls-back",
             test_move_note_validates_destination_and_rolls_back
+        );
+        Test.add_func(
+            "/note-service/duplicate-note-copies-content-and-context",
+            test_duplicate_note_copies_content_and_identity_context
+        );
+        Test.add_func(
+            "/note-service/duplicate-note-reports-source-and-save-errors",
+            test_duplicate_note_reports_missing_source_and_save_failure
+        );
+        Test.add_func(
+            "/note-service/duplicate-note-rolls-back-assets",
+            test_duplicate_note_rolls_back_after_asset_failure
         );
         Test.add_func(
             "/folder-service/move-folder-changes-parent-and-rejects-cycles",

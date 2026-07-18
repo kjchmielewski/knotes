@@ -42,6 +42,18 @@ namespace Knotes.Tests {
         public AssetContent? load_asset(string note_id, string path) throws GLib.Error {
             return asset_repository.load_asset(note_id, path);
         }
+
+        public void copy_referenced_assets(
+            string source_note_id,
+            string destination_note_id,
+            string content
+        ) throws GLib.Error {
+            asset_repository.copy_referenced_assets(
+                source_note_id,
+                destination_note_id,
+                content
+            );
+        }
     }
 
     private GLib.Bytes png_bytes() {
@@ -199,6 +211,45 @@ namespace Knotes.Tests {
         }
     }
 
+    private void copies_only_referenced_assets_independently() throws GLib.Error {
+        var notes_directory = temporary_notes_directory();
+        var root = File.new_for_path(Path.get_dirname(notes_directory));
+        try {
+            var repository = new JsonRepositoryFixture(notes_directory);
+            var source = new_note(Uuid.string_random());
+            repository.save_note(source);
+            var referenced_path = repository.import_image_bytes(
+                source.id,
+                "referenced.png",
+                png_bytes()
+            );
+            var orphaned_path = repository.import_image_bytes(
+                source.id,
+                "orphaned.png",
+                png_bytes()
+            );
+            source.content = "![Used](%s) ![Missing](assets/missing.png)".printf(referenced_path);
+            repository.save_note(source);
+
+            var duplicate = new_note(Uuid.string_random(), source.content);
+            repository.save_note(duplicate);
+            repository.copy_referenced_assets(source.id, duplicate.id, source.content);
+
+            var copied = repository.load_asset(duplicate.id, referenced_path);
+            assert(copied != null);
+            assert(copied.bytes.compare(png_bytes()) == 0);
+            assert(repository.load_asset(duplicate.id, orphaned_path) == null);
+            assert(repository.load_asset(duplicate.id, "assets/missing.png") == null);
+
+            repository.delete_note(source.id);
+            copied = repository.load_asset(duplicate.id, referenced_path);
+            assert(copied != null);
+            assert(copied.bytes.compare(png_bytes()) == 0);
+        } finally {
+            cleanup(root);
+        }
+    }
+
     private bool wait_for_value(string expected, ref string actual) {
         var deadline = GLib.get_monotonic_time() + (2 * TimeSpan.SECOND);
         while (actual != expected && GLib.get_monotonic_time() < deadline) {
@@ -284,6 +335,10 @@ namespace Knotes.Tests {
         run_throwing_test(deleting_note_removes_its_assets);
     }
 
+    private void test_copies_only_referenced_assets_independently() {
+        run_throwing_test(copies_only_referenced_assets_independently);
+    }
+
     private void test_monitor_reports_external_note_changes() {
         run_throwing_test(monitor_reports_external_note_changes);
     }
@@ -309,6 +364,10 @@ namespace Knotes.Tests {
         Test.add_func(
             "/json-notebook-repository/deleting-note-removes-assets",
             test_deleting_note_removes_its_assets
+        );
+        Test.add_func(
+            "/json-notebook-repository/copies-referenced-assets-independently",
+            test_copies_only_referenced_assets_independently
         );
         Test.add_func(
             "/json-note-repository/monitor-reports-external-changes",

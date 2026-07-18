@@ -14,5 +14,10 @@ namespace Knotes {
             string note_id,
             string relative_path
         ) throws GLib.Error;
+        public abstract void copy_referenced_assets(
+            string source_note_id,
+            string destination_note_id,
+            string content
+        ) throws GLib.Error;
     }
 }

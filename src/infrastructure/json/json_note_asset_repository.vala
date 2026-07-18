@@ -22,5 +22,13 @@ namespace Knotes {
         public AssetContent? load_asset(string note_id, string relative_path) throws GLib.Error {
             return storage.load_asset(note_id, relative_path);
         }
+
+        public void copy_referenced_assets(
+            string source_note_id,
+            string destination_note_id,
+            string content
+        ) throws GLib.Error {
+            storage.copy_referenced_assets(source_note_id, destination_note_id, content);
+        }
     }
 }

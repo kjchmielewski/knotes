@@ -73,6 +73,50 @@ namespace Knotes {
             return new AssetContent(asset.load_bytes(), mime_type_for_extension(extension));
         }
 
+        public void copy_referenced_assets(
+            string source_note_id,
+            string destination_note_id,
+            string content
+        ) throws GLib.Error {
+            ensure_note_exists(source_note_id);
+            ensure_note_exists(destination_note_id);
+
+            var source_directory = GLib.File.new_for_path(
+                layout.assets_directory_path(source_note_id)
+            );
+            var destination_directory = GLib.File.new_for_path(
+                layout.assets_directory_path(destination_note_id)
+            );
+            try {
+                foreach (var relative_path in referenced_asset_paths(content)) {
+                    var filename = validated_asset_filename(relative_path);
+                    var source = source_directory.get_child(filename);
+                    if (!source.query_exists()) {
+                        continue;
+                    }
+                    var info = source.query_info(
+                        FileAttribute.STANDARD_TYPE,
+                        FileQueryInfoFlags.NOFOLLOW_SYMLINKS
+                    );
+                    if (info.get_file_type() != FileType.REGULAR) {
+                        throw new AssetStorageError.INVALID_SOURCE(
+                            "Referenced asset is not a regular file"
+                        );
+                    }
+                    if (!destination_directory.query_exists()) {
+                        destination_directory.make_directory_with_parents();
+                    }
+                    source.copy(
+                        destination_directory.get_child(filename),
+                        FileCopyFlags.NONE
+                    );
+                }
+            } catch (GLib.Error error) {
+                remove_assets(destination_note_id);
+                throw error;
+            }
+        }
+
         public void stage_orphaned_assets(Note note) throws GLib.Error {
             var existing_paths = list_existing_asset_paths(note.id);
             var referenced_paths = referenced_asset_paths(note.content);

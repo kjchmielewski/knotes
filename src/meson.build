@@ -10,6 +10,7 @@ sources = files(
     'application/notebook_catalog.vala',
     'application/notebook_workspace.vala',
     'application/asset_import_result.vala',
+    'application/duplicate_note_result.vala',
     'application/move_result.vala',
     'application/rename_folder_result.vala',
     'application/ports/note_repository.vala',

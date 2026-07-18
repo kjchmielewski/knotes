@@ -55,6 +55,12 @@ template $KnotesNoteEditorPane : Gtk.Box {
             styles ["flat"]
           }
 
+          Gtk.Button duplicate_button {
+            icon-name: "edit-copy-symbolic";
+            tooltip-text: _("Duplicate note");
+            styles ["flat"]
+          }
+
           Gtk.Button delete_button {
             icon-name: "user-trash-symbolic";
             tooltip-text: _("Delete note");

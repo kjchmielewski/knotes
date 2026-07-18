@@ -13,7 +13,7 @@ namespace Knotes {
             var workspace = new NotebookWorkspace(note_repository, folder_repository);
             return new ApplicationServices(
                 workspace,
-                new NoteService(note_repository, workspace),
+                new NoteService(note_repository, asset_repository, workspace),
                 new FolderService(folder_repository, note_repository, workspace),
                 new NoteAssetService(asset_repository, workspace)
             );
