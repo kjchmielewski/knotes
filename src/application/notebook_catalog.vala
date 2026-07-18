@@ -41,6 +41,38 @@ namespace Knotes {
             return folders_by_id.has_key(id);
         }
 
+        public bool would_create_folder_cycle(string folder_id, string? destination_parent_id) {
+            if (destination_parent_id == null) {
+                return false;
+            }
+
+            var visited_folder_ids = new HashSet<string>();
+            string? current_id = destination_parent_id;
+            while (current_id != null) {
+                if (current_id == folder_id || visited_folder_ids.contains(current_id)) {
+                    return true;
+                }
+                visited_folder_ids.add(current_id);
+
+                var current_folder = find_folder(current_id);
+                if (current_folder == null) {
+                    return false;
+                }
+                current_id = current_folder.parent_id;
+            }
+            return false;
+        }
+
+        public bool is_valid_folder_destination(string folder_id, string? destination_parent_id) {
+            if (!contains_folder(folder_id)) {
+                return false;
+            }
+            if (destination_parent_id != null && !contains_folder(destination_parent_id)) {
+                return false;
+            }
+            return !would_create_folder_cycle(folder_id, destination_parent_id);
+        }
+
         public void upsert_note(Note note) {
             notes_by_id[note.id] = note;
         }
@@ -66,6 +98,12 @@ namespace Knotes {
         public ArrayList<Folder> all_folders() {
             var folders = new ArrayList<Folder>();
             folders.add_all(folders_by_id.values);
+            return folders;
+        }
+
+        public ArrayList<Folder> folders_sorted_by_name() {
+            var folders = all_folders();
+            folders.sort((first, second) => first.name.collate(second.name));
             return folders;
         }
 

@@ -20,6 +20,7 @@ namespace Knotes {
         private NotebookCatalog catalog;
         private FolderTreeView folder_tree;
         private FolderDialogs folder_dialogs;
+        private MoveDestinationDialog move_destination_dialog;
         private HashMap<string, CompactNoteRow> compact_rows_map;
         private string? selected_id = null;
         private string? selected_folder_id = null;
@@ -49,6 +50,8 @@ namespace Knotes {
             this.compact_rows_map = new HashMap<string, CompactNoteRow>();
             this.folder_tree = new FolderTreeView(catalog);
             this.folder_dialogs = new FolderDialogs();
+            this.move_destination_dialog = new MoveDestinationDialog(catalog);
+            folder_tree.configure_drop_destination(all_notes_button, null);
             note_tree_box.append(folder_tree);
             rebuild_tree_views();
             connect_signals();
@@ -60,8 +63,14 @@ namespace Knotes {
             all_notes_button.clicked.connect(() => select_folder(null));
             folder_tree.note_activated.connect(select_note);
             folder_tree.folder_activated.connect(select_folder);
+            folder_tree.note_move_dialog_requested.connect(show_move_note_dialog);
+            folder_tree.folder_move_dialog_requested.connect(show_move_folder_dialog);
+            folder_tree.note_move_requested.connect(move_note);
+            folder_tree.folder_move_requested.connect(move_folder);
             folder_dialogs.folder_creation_requested.connect(on_folder_creation_requested);
             folder_dialogs.folder_deletion_requested.connect(delete_folder);
+            move_destination_dialog.note_destination_selected.connect(move_note);
+            move_destination_dialog.folder_destination_selected.connect(move_folder);
             notebook_service.external_note_updated.connect(on_external_note_updated);
             notebook_service.external_note_deleted.connect(on_external_note_deleted);
         }
@@ -129,6 +138,7 @@ namespace Knotes {
 
         private void add_compact_note_row(Note note) {
             var compact_row = new CompactNoteRow(note);
+            compact_row.move_requested.connect(show_move_note_dialog);
             compact_rows_map[note.id] = compact_row;
             compact_list_box.append(compact_row);
         }
@@ -261,6 +271,57 @@ namespace Knotes {
                 return;
             }
             select_folder(parent_id);
+            rebuild_tree_views();
+        }
+
+        private void show_move_note_dialog(string note_id) {
+            var note = catalog.find_note(note_id);
+            if (note == null) {
+                folder_dialogs.show_move_error(this, MoveResult.SOURCE_NOT_FOUND);
+                return;
+            }
+            move_destination_dialog.show_for_note(this, note);
+        }
+
+        private void show_move_folder_dialog(string folder_id) {
+            var folder = catalog.find_folder(folder_id);
+            if (folder == null) {
+                folder_dialogs.show_move_error(this, MoveResult.SOURCE_NOT_FOUND);
+                return;
+            }
+            move_destination_dialog.show_for_folder(this, folder);
+        }
+
+        private void move_note(string note_id, string? destination_folder_id) {
+            var result = notebook_service.move_note(note_id, destination_folder_id);
+            if (result == MoveResult.UNCHANGED) {
+                return;
+            }
+            if (result != MoveResult.MOVED) {
+                folder_dialogs.show_move_error(this, result);
+                return;
+            }
+
+            folder_tree.expand_path(destination_folder_id);
+            if (selected_id == note_id) {
+                selected_folder_id = destination_folder_id;
+            }
+            rebuild_tree_views();
+            folder_selection_changed(selected_folder_id != null);
+        }
+
+        private void move_folder(string folder_id, string? destination_parent_id) {
+            var result = notebook_service.move_folder(folder_id, destination_parent_id);
+            if (result == MoveResult.UNCHANGED) {
+                return;
+            }
+            if (result != MoveResult.MOVED) {
+                folder_dialogs.show_move_error(this, result);
+                return;
+            }
+
+            folder_tree.expand_path(destination_parent_id);
+            folder_tree.expand_path(selected_folder_id);
             rebuild_tree_views();
         }
     }

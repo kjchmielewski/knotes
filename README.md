@@ -5,6 +5,7 @@ A simple note-taking application built with **Vala**, **GTK4**, **Libadwaita**, 
 ## Features
 
 - Create, edit, and delete notes
+- Organize notes in nested folders and move notes or folders with drag-and-drop
 - Search through notes by title or content
 - Auto-save with debounced writes
 - Notes stored locally as JSON files (`~/.local/share/knotes/notes/`)
@@ -146,6 +147,8 @@ knotes/
 | `Application` | Libadwaita lifecycle, tray orchestration, and start-minimized mode |
 | `ApplicationFactory` | Composition root connecting the JSON adapter to application services |
 | `TrayManager` | **StatusNotifierItem** and **D-BusMenu** implementation (Wayland-ready) |
+
+Notes and folders can be dragged onto another folder or onto **All notes** to move them to the top level. To choose a destination without drag-and-drop, right-click an item, or focus it and press `Shift+F10`. Invalid folder destinations (the folder itself and its descendants) are omitted.
 
 ## Tray Icon
 

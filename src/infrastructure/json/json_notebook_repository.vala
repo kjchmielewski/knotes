@@ -48,7 +48,7 @@ namespace Knotes {
             return folders;
         }
 
-        public override void save_folders(List<Folder> folders) {
+        public override void save_folders(List<Folder> folders) throws GLib.Error {
             var array = new Json.Array();
             foreach (var folder in folders) {
                 var node = new Json.Node(Json.NodeType.OBJECT);
@@ -61,11 +61,7 @@ namespace Knotes {
             var generator = new Json.Generator();
             generator.set_root(root);
             generator.pretty = true;
-            try {
-                generator.to_file(folders_path);
-            } catch (GLib.Error e) {
-                warning("Failed to save folders: %s", e.message);
-            }
+            generator.to_file(folders_path);
         }
 
         private void ensure_directory() {
@@ -129,29 +125,21 @@ namespace Knotes {
             }
         }
 
-        public override void save_note(Note note) {
+        public override void save_note(Note note) throws GLib.Error {
             var generator = new Json.Generator();
             var root = new Json.Node(Json.NodeType.OBJECT);
             root.set_object(NoteJsonMapper.to_json(note));
             generator.set_root(root);
             generator.pretty = true;
-            try {
-                mark_own_update(note.id);
-                generator.to_file(file_path_for_id(note.id));
-            } catch (GLib.Error e) {
-                warning("Failed to save note '%s': %s", note.id, e.message);
-            }
+            mark_own_update(note.id);
+            generator.to_file(file_path_for_id(note.id));
         }
 
-        public override void delete_note(string id) {
+        public override void delete_note(string id) throws GLib.Error {
             var file = File.new_for_path(file_path_for_id(id));
-            try {
-                if (file.query_exists()) {
-                    mark_own_delete(id);
-                    file.delete();
-                }
-            } catch (GLib.Error e) {
-                warning("Failed to delete note '%s': %s", id, e.message);
+            if (file.query_exists()) {
+                mark_own_delete(id);
+                file.delete();
             }
         }
 

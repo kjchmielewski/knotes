@@ -6,9 +6,9 @@ namespace Knotes {
 
         public abstract GLib.List<Note> list_notes();
         public abstract Note? load_note(string id);
-        public abstract void save_note(Note note);
-        public abstract void delete_note(string id);
+        public abstract void save_note(Note note) throws GLib.Error;
+        public abstract void delete_note(string id) throws GLib.Error;
         public abstract GLib.List<Folder> list_folders();
-        public abstract void save_folders(GLib.List<Folder> folders);
+        public abstract void save_folders(GLib.List<Folder> folders) throws GLib.Error;
     }
 }

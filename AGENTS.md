@@ -4,7 +4,7 @@
 
 The Vala sources follow a lightweight hexagonal structure. `src/domain/` contains the `Note` and `Folder` models and must not depend on GTK or JSON. `src/application/` contains `NotebookService`, the query-oriented `NotebookCatalog`, and the abstract repository port in `application/ports/`. `src/infrastructure/json/` implements that port with JSON files, mappers, and directory monitoring.
 
-`src/presentation/` contains GTK/Libadwaita code: the application shell, main window, tray integration, and sidebar components. `NoteListBox` coordinates the sidebar; `FolderTreeView`, `FolderDialogs`, `NoteRow`, and `CompactNoteRow` own focused UI responsibilities. `src/bootstrap/` contains the entry point and `ApplicationFactory`, which wires infrastructure to application ports.
+`src/presentation/` contains GTK/Libadwaita code: the application shell, main window, tray integration, and sidebar components. `NoteListBox` coordinates the sidebar; `FolderTreeView`, `FolderDialogs`, `MoveDestinationDialog`, `NoteRow`, and `CompactNoteRow` own focused UI responsibilities. `src/bootstrap/` contains the entry point and `ApplicationFactory`, which wires infrastructure to application ports.
 
 `data/` contains Blueprint templates, CSS, GResources, desktop metadata, and icons. `tests/` contains GLib tests for code that does not require a display. `po/` contains gettext files. Register new Vala sources in `src/meson.build`; register new translatable sources in `po/POTFILES`.
 
@@ -44,11 +44,15 @@ Use 4-space indentation, namespace app code under `Knotes`, and follow the exist
 
 Dependencies point inward: presentation calls application services, application depends on domain and repository ports, and infrastructure implements those ports. Domain code must not import GTK, Adwaita, WebKit, JSON-GLib, or filesystem APIs. Keep serialization in mappers and construct concrete repositories only in `src/bootstrap/`. UI classes must request mutations through `NotebookService` rather than writing files or mutating `NotebookCatalog` directly.
 
+Moving notes and folders is an application use case. Keep destination validation and cycle detection in `NotebookCatalog`/`NotebookService`; presentation code may pre-filter invalid drop targets but must still handle every `MoveResult`. Folder moves must reject the folder itself and all descendants. Preserve selected IDs, the search query, and expanded folder state when rebuilding the sidebar after a move.
+
 Translatable UI strings should go through the gettext helper in `src/i18n.vala`. When adding new files with user-visible strings, update `po/POTFILES`.
 
 ## Testing Guidelines
 
 Treat `meson compile -C builddir` and `meson test -C builddir --print-errorlogs` as the minimum verification. Add GLib tests for domain and application behavior, especially folder hierarchy, search, and persistence-independent rules. For UI, tray, persistence, or translation work, also run the app manually with the relevant flags. Check note files under `~/.local/share/knotes/notes/` when changing storage behavior.
+
+For move behavior, test note moves between folders and the root, folder moves between parents and the top level, no-op moves, missing destinations, cycle rejection, and persistence rollback. Manually verify both drag-and-drop and the keyboard-accessible move dialog (`Shift+F10` on a focused note or folder).
 
 ## Commit & Pull Request Guidelines
 

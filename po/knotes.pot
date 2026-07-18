@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: knotes\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-18 00:32+0200\n"
+"POT-Creation-Date: 2026-07-18 10:32+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -89,6 +89,7 @@ msgstr ""
 #: src/presentation/window/main_window.vala:367
 #: src/presentation/sidebar/folder_dialogs.vala:12
 #: src/presentation/sidebar/folder_dialogs.vala:37
+#: src/presentation/sidebar/move_destination_dialog.vala:74
 msgid "Cancel"
 msgstr ""
 
@@ -97,11 +98,12 @@ msgstr ""
 msgid "Delete"
 msgstr ""
 
-#: src/presentation/window/main_window.vala:389
+#: src/presentation/window/main_window.vala:391
 msgid "Untitled"
 msgstr ""
 
-#: src/presentation/sidebar/note_list_box.vala:47
+#: src/presentation/sidebar/note_list_box.vala:48
+#: src/presentation/sidebar/move_destination_dialog.vala:23
 msgid "All notes"
 msgstr ""
 
@@ -123,6 +125,54 @@ msgstr ""
 
 #: src/presentation/sidebar/folder_dialogs.vala:35
 msgid "Notes and subfolders will be moved to the parent folder."
+msgstr ""
+
+#: src/presentation/sidebar/folder_dialogs.vala:53
+msgid "The item no longer exists."
+msgstr ""
+
+#: src/presentation/sidebar/folder_dialogs.vala:56
+msgid "The destination folder no longer exists."
+msgstr ""
+
+#: src/presentation/sidebar/folder_dialogs.vala:59
+msgid "A folder cannot be moved into itself or one of its subfolders."
+msgstr ""
+
+#: src/presentation/sidebar/folder_dialogs.vala:62
+msgid "The change could not be saved. Your notes were left unchanged."
+msgstr ""
+
+#: src/presentation/sidebar/folder_dialogs.vala:65
+msgid "The item could not be moved."
+msgstr ""
+
+#: src/presentation/sidebar/folder_dialogs.vala:69
+msgid "Unable to move item"
+msgstr ""
+
+#: src/presentation/sidebar/folder_dialogs.vala:70
+msgid "Close"
+msgstr ""
+
+#: src/presentation/sidebar/move_destination_dialog.vala:18
+msgid "Move note"
+msgstr ""
+
+#: src/presentation/sidebar/move_destination_dialog.vala:45
+msgid "Move folder"
+msgstr ""
+
+#: src/presentation/sidebar/move_destination_dialog.vala:50
+msgid "Top level"
+msgstr ""
+
+#: src/presentation/sidebar/move_destination_dialog.vala:73
+msgid "Choose a destination."
+msgstr ""
+
+#: src/presentation/sidebar/move_destination_dialog.vala:107
+msgid "No other destinations are available."
 msgstr ""
 
 #: src/presentation/tray/tray_manager.vala:310

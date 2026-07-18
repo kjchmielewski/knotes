@@ -4,4 +4,5 @@ src/presentation/shell/application.vala
 src/presentation/window/main_window.vala
 src/presentation/sidebar/note_list_box.vala
 src/presentation/sidebar/folder_dialogs.vala
+src/presentation/sidebar/move_destination_dialog.vala
 src/presentation/tray/tray_manager.vala

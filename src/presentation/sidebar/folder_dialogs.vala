@@ -45,5 +45,31 @@ namespace Knotes {
                 }
             });
         }
+
+        public void show_move_error(Gtk.Widget parent, MoveResult result) {
+            string message;
+            switch (result) {
+                case MoveResult.SOURCE_NOT_FOUND:
+                    message = _("The item no longer exists.");
+                    break;
+                case MoveResult.DESTINATION_NOT_FOUND:
+                    message = _("The destination folder no longer exists.");
+                    break;
+                case MoveResult.CYCLE_DETECTED:
+                    message = _("A folder cannot be moved into itself or one of its subfolders.");
+                    break;
+                case MoveResult.STORAGE_ERROR:
+                    message = _("The change could not be saved. Your notes were left unchanged.");
+                    break;
+                default:
+                    message = _("The item could not be moved.");
+                    break;
+            }
+
+            var dialog = new Adw.AlertDialog(_("Unable to move item"), message);
+            dialog.add_response("close", _("Close"));
+            dialog.close_response = "close";
+            dialog.present(parent);
+        }
     }
 }

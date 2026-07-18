@@ -53,6 +53,16 @@ button.folder-tree-row.selected-folder:active {
     color: @theme_selected_fg_color;
 }
 
+.move-drop-target,
+.move-drop-target:hover {
+    box-shadow: inset 0 0 0 2px @accent_bg_color;
+    background-color: alpha(@accent_bg_color, 0.18);
+}
+
+.move-destination-list button {
+    padding: 8px 12px;
+}
+
 expander.empty-folder-expander title > arrow {
     opacity: 0.35;
 }

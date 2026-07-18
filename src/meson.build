@@ -7,6 +7,7 @@ sources = files(
     'domain/note.vala',
     'domain/folder.vala',
     'application/notebook_catalog.vala',
+    'application/move_result.vala',
     'application/ports/notebook_repository.vala',
     'application/notebook_service.vala',
     'infrastructure/json/note_json_mapper.vala',
@@ -16,6 +17,7 @@ sources = files(
     'presentation/sidebar/compact_note_row.vala',
     'presentation/sidebar/folder_tree_view.vala',
     'presentation/sidebar/folder_dialogs.vala',
+    'presentation/sidebar/move_destination_dialog.vala',
     'presentation/sidebar/note_list_box.vala',
     'presentation/tray/tray_manager.vala'
 )

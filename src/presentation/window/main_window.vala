@@ -373,8 +373,10 @@ namespace Knotes {
                     var btn = dialog.choose.end(res);
                     if (btn == 1) {
                         var id = current_note_id;
+                        if (!notebook_service.delete_note(id)) {
+                            return;
+                        }
                         current_note_id = null;
-                        notebook_service.delete_note(id);
                         note_list.refresh_after_note_deletion();
                         editor_stack.set_visible_child_name("empty");
                     }
@@ -390,6 +392,9 @@ namespace Knotes {
                 "",
                 note_list.folder_id_for_new_note()
             );
+            if (note == null) {
+                return;
+            }
             note_list.show_created_note(note);
         }
     }
