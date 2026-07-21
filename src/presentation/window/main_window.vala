@@ -23,6 +23,7 @@ namespace Knotes {
         private unowned Gtk.MenuButton header_menu_button;
 
         private NoteService note_service;
+        private NoteEditingSession editing_session;
         private NoteListBox note_list;
         private NoteEditorPane editor_pane;
         private Gtk.Box sidebar;
@@ -35,10 +36,12 @@ namespace Knotes {
             NoteService note_service,
             FolderService folder_service,
             NoteAssetService asset_service,
+            NoteEditingSession editing_session,
             bool tray_enabled
         ) {
             Object(application: app);
             this.note_service = note_service;
+            this.editing_session = editing_session;
             hide_on_close = tray_enabled;
             build_ui(workspace, folder_service, asset_service);
             connect_signals();
@@ -74,7 +77,7 @@ namespace Knotes {
             note_list = new NoteListBox(workspace, note_service, folder_service);
             sidebar.append(note_list);
 
-            editor_pane = new NoteEditorPane(note_service, asset_service);
+            editor_pane = new NoteEditorPane(editing_session, asset_service);
             main_paned.set_start_child(sidebar);
             main_paned.set_end_child(editor_pane);
             main_paned.position = DEFAULT_SIDEBAR_WIDTH;
@@ -86,9 +89,9 @@ namespace Knotes {
                 header_rename_folder_button.sensitive = has_folder_selection;
                 header_delete_folder_button.sensitive = has_folder_selection;
             });
-            editor_pane.note_changed.connect(note_list.refresh_note);
-            editor_pane.note_duplicated.connect(note_list.show_created_note);
-            editor_pane.note_deleted.connect(note_list.refresh_after_note_deletion);
+            editing_session.note_changed.connect(note_list.refresh_note);
+            editing_session.note_duplicated.connect(note_list.show_created_note);
+            editing_session.note_deleted.connect(note_list.refresh_after_note_deletion);
             sidebar_toggle_button.toggled.connect(on_sidebar_toggle);
             main_paned.notify["position"].connect(on_sidebar_position_changed);
             header_new_button.clicked.connect(on_new_note);

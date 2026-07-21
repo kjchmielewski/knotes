@@ -55,6 +55,7 @@ namespace Knotes {
                     services.notes,
                     services.folders,
                     services.assets,
+                    services.note_editing_session,
                     tray_enabled
                 );
             }

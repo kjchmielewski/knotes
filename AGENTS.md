@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 
-The Vala sources follow a lightweight hexagonal structure. `src/domain/` contains the `Note` and `Folder` models and must not depend on GTK or JSON. `src/application/` contains focused note, folder, and asset services, the shared `NotebookWorkspace`, the query-oriented `NotebookCatalog`, and segregated ports in `application/ports/`. `src/infrastructure/json/` implements those ports with JSON files, mappers, asset storage, and directory monitoring.
+The Vala sources follow a lightweight hexagonal structure. `src/domain/` contains the `Note` and `Folder` models and must not depend on GTK or JSON. `src/application/` groups editing workflows, explicit results, focused services, workspace state, and segregated ports into `editing/`, `results/`, `services/`, `workspace/`, and `ports/`. `src/infrastructure/json/` implements those ports with JSON files, mappers, asset storage, and directory monitoring.
 
 `src/presentation/` contains GTK/Libadwaita code: the application shell, main window, editor components, tray integration, and sidebar components. `NoteListBox` composes the sidebar, `SidebarSelectionModel` owns its logical selection, `SidebarCommandController` owns mutation commands, and `SidebarTreeView`, dialogs, and row widgets own focused GTK responsibilities. `src/bootstrap/` contains the entry point and `ApplicationFactory`, which wires infrastructure to application ports.
 
@@ -50,6 +50,8 @@ Renaming a folder is also an application use case. Normalize and validate names 
 
 Translatable UI strings should go through the gettext helper in `src/i18n.vala`. When adding new files with user-visible strings, update `po/POTFILES`.
 
+An empty folder_id string ("") means the root/unfiled level; never use null or any other sentinel.
+
 ## Testing Guidelines
 
 Treat `meson compile -C builddir` and `meson test -C builddir --print-errorlogs` as the minimum verification. Add GLib tests for domain and application behavior, especially folder hierarchy, search, and persistence-independent rules. For UI, tray, persistence, or translation work, also run the app manually with the relevant flags. Check note files under `~/.local/share/knotes/notes/` when changing storage behavior.
@@ -66,4 +68,4 @@ Pull requests should describe the user-visible behavior change, list manual veri
 
 ## Agent-Specific Instructions
 
-Respect existing lifecycle boundaries: `startup()` owns one-time setup, `ensure_main_window()` owns lazy window construction, and restore/show behavior repairs minimized state before presenting. `ApplicationFactory` is the composition root; do not instantiate concrete JSON repositories from presentation widgets or application services. Keep sidebar rendering in its focused presentation components and search/hierarchy rules in `NotebookCatalog`. Do not replace the pure GLib D-Bus tray implementation with external tray libraries unless the project explicitly chooses that dependency.
+Respect existing lifecycle boundaries: `startup()` owns one-time setup, `ensure_main_window()` owns lazy window construction, and restore/show behavior repairs minimized state before presenting. `ApplicationFactory` is the composition root; do not instantiate concrete JSON repositories from presentation widgets or application services. Keep sidebar rendering in its focused presentation components and search/hierarchy rules in `NotebookCatalog`. Blueprint templates in `data/*.blp` compile to XML embedded in the GResource. Each template corresponds to a `[GtkTemplate]` Vala class. Adding widgets requires updating both the `.blp` and the `[GtkChild]` field; new `.blp` files must be registered in `data/meson.build`. Do not replace the pure GLib D-Bus tray implementation with external tray libraries unless the project explicitly chooses that dependency.

@@ -7,6 +7,8 @@ namespace Knotes.Tests {
         public bool fail_note_saves { get; set; default = false; }
         public bool fail_folder_saves { get; set; default = false; }
         public GLib.Error? asset_error { get; set; default = null; }
+        public int note_save_count { get; private set; default = 0; }
+        public int note_delete_count { get; private set; default = 0; }
         public int folder_save_count { get; private set; default = 0; }
         public int asset_copy_count { get; private set; default = 0; }
 
@@ -41,6 +43,7 @@ namespace Knotes.Tests {
         }
 
         public void save_note(Note note) throws GLib.Error {
+            note_save_count++;
             if (fail_note_saves) {
                 throw new GLib.IOError.FAILED("Simulated note save failure");
             }
@@ -48,6 +51,7 @@ namespace Knotes.Tests {
         }
 
         public void delete_note(string id) throws GLib.Error {
+            note_delete_count++;
             notes.unset(id);
         }
 
@@ -101,6 +105,47 @@ namespace Knotes.Tests {
             foreach (var folder in saved_folders) {
                 folders[folder.id] = folder;
             }
+        }
+    }
+
+    private class ManualAutosaveScheduler : GLib.Object, AutosaveScheduler {
+        private SaveDelegate save_delegate;
+
+        public int schedule_count { get; private set; default = 0; }
+        public int cancel_count { get; private set; default = 0; }
+        public int flush_count { get; private set; default = 0; }
+        public bool is_pending { get; private set; default = false; }
+
+        public ManualAutosaveScheduler(owned SaveDelegate save_delegate) {
+            this.save_delegate = (owned) save_delegate;
+        }
+
+        public void schedule(uint delay_ms = DEFAULT_AUTOSAVE_DELAY_MS) {
+            schedule_count++;
+            is_pending = true;
+        }
+
+        public void cancel() {
+            cancel_count++;
+            is_pending = false;
+        }
+
+        public void flush() {
+            flush_count++;
+            if (!is_pending) {
+                return;
+            }
+            is_pending = false;
+            save_delegate();
+        }
+    }
+
+    private class ManualAutosaveFactory : GLib.Object, AutosaveFactory {
+        public ManualAutosaveScheduler? scheduler { get; private set; default = null; }
+
+        public AutosaveScheduler create(owned SaveDelegate save_delegate) {
+            scheduler = new ManualAutosaveScheduler((owned) save_delegate);
+            return scheduler;
         }
     }
 
@@ -242,6 +287,93 @@ namespace Knotes.Tests {
         coordinator.schedule(1000);
         coordinator.flush();
         assert(save_count == 2);
+    }
+
+    private void test_note_editing_session_saves_draft_through_autosave() {
+        var repository = new InMemoryNotebookRepository();
+        repository.seed_note(create_note("note", "Initial", "Body", "", 10));
+        var workspace = new NotebookWorkspace(repository, repository);
+        var note_service = new NoteService(repository, repository, workspace);
+        var autosave_factory = new ManualAutosaveFactory();
+        var session = new NoteEditingSession(note_service, autosave_factory);
+        var changed_note_id = "";
+        session.note_changed.connect((note) => changed_note_id = note.id);
+
+        var selected_note = session.select_note("note");
+        assert(selected_note != null);
+        assert(session.title == "Initial");
+        assert(session.content == "Body");
+
+        session.update_draft("Changed", "Updated body");
+        assert(autosave_factory.scheduler.schedule_count == 1);
+        assert(autosave_factory.scheduler.is_pending);
+        assert(note_service.find_note("note").title == "Initial");
+        assert(repository.note_save_count == 0);
+
+        autosave_factory.scheduler.flush();
+        assert(note_service.find_note("note").title == "Changed");
+        assert(note_service.find_note("note").content == "Updated body");
+        assert(repository.note_save_count == 1);
+        assert(changed_note_id == "note");
+
+        session.update_draft("Changed", "Updated body");
+        autosave_factory.scheduler.flush();
+        assert(repository.note_save_count == 1);
+    }
+
+    private void test_note_editing_session_flushes_before_switching_notes() {
+        var repository = new InMemoryNotebookRepository();
+        repository.seed_note(create_note("first", "First", "One", "", 10));
+        repository.seed_note(create_note("second", "Second", "Two", "", 20));
+        var workspace = new NotebookWorkspace(repository, repository);
+        var note_service = new NoteService(repository, repository, workspace);
+        var autosave_factory = new ManualAutosaveFactory();
+        var session = new NoteEditingSession(note_service, autosave_factory);
+
+        session.select_note("first");
+        session.update_draft("Updated first", "Updated one");
+        var selected_note = session.select_note("second");
+
+        assert(selected_note != null);
+        assert(autosave_factory.scheduler.flush_count == 2);
+        assert(note_service.find_note("first").title == "Updated first");
+        assert(session.current_note_id == "second");
+        assert(session.title == "Second");
+        assert(session.content == "Two");
+    }
+
+    private void test_note_editing_session_duplicates_and_deletes_current_note() {
+        var repository = new InMemoryNotebookRepository();
+        repository.seed_note(create_note("note", "Original", "Body", "", 10));
+        var workspace = new NotebookWorkspace(repository, repository);
+        var note_service = new NoteService(repository, repository, workspace);
+        var autosave_factory = new ManualAutosaveFactory();
+        var session = new NoteEditingSession(note_service, autosave_factory);
+        var duplicated_note_id = "";
+        var deletion_count = 0;
+        session.note_duplicated.connect((note) => duplicated_note_id = note.id);
+        session.note_deleted.connect(() => deletion_count++);
+
+        session.select_note("note");
+        session.update_draft("Changed", "Updated body");
+        var duplicate_result = session.duplicate_current_note("Changed (copy)");
+
+        assert(duplicate_result.status == DuplicateNoteStatus.DUPLICATED);
+        assert(duplicate_result.note != null);
+        assert(duplicate_result.note.title == "Changed (copy)");
+        assert(duplicate_result.note.content == "Updated body");
+        assert(duplicated_note_id == duplicate_result.note.id);
+
+        session.update_draft("Discarded", "Discarded body");
+        assert(session.delete_current_note());
+        assert(note_service.find_note("note") == null);
+        assert(session.current_note_id == null);
+        assert(session.title == "");
+        assert(session.content == "");
+        assert(autosave_factory.scheduler.cancel_count == 1);
+        assert(!autosave_factory.scheduler.is_pending);
+        assert(repository.note_delete_count == 1);
+        assert(deletion_count == 1);
     }
 
     private void test_delete_folder_moves_its_contents_to_parent() {
@@ -542,6 +674,18 @@ namespace Knotes.Tests {
         Test.add_func(
             "/autosave-coordinator/scheduling",
             test_autosave_coordinator_reschedules_cancels_and_flushes
+        );
+        Test.add_func(
+            "/note-editing-session/saves-draft-through-autosave",
+            test_note_editing_session_saves_draft_through_autosave
+        );
+        Test.add_func(
+            "/note-editing-session/flushes-before-switching-notes",
+            test_note_editing_session_flushes_before_switching_notes
+        );
+        Test.add_func(
+            "/note-editing-session/duplicates-and-deletes-current-note",
+            test_note_editing_session_duplicates_and_deletes_current_note
         );
         Test.add_func(
             "/folder-service/delete-folder-moves-contents-to-parent",

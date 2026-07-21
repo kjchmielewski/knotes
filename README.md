@@ -108,7 +108,12 @@ knotes/
 │   ├── i18n.vala              # gettext helper
 │   ├── bootstrap/             # Entry point and dependency composition
 │   ├── domain/                # Note and Folder models
-│   ├── application/           # Focused use cases, workspace, catalog, and ports
+│   ├── application/           # Application layer grouped by responsibility
+│   │   ├── editing/           # Editing session and autosave coordination
+│   │   ├── ports/             # Repository and scheduler boundaries
+│   │   ├── results/           # Explicit application operation outcomes
+│   │   ├── services/          # Note, folder, and asset use cases
+│   │   └── workspace/         # Shared catalog and repository synchronization
 │   ├── infrastructure/json/   # Note, folder, and asset JSON adapters
 │   └── presentation/          # GTK shell, editor, sidebar, window, and tray components
 ├── data/

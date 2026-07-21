@@ -1,22 +1,20 @@
 namespace Knotes {
 
-    public delegate void SaveOperation();
-
-    public class AutosaveCoordinator : GLib.Object {
-        public const uint DEFAULT_DELAY_MS = 500;
+    public class AutosaveCoordinator : GLib.Object, AutosaveScheduler {
+        public const uint DEFAULT_DELAY_MS = DEFAULT_AUTOSAVE_DELAY_MS;
 
         private uint timeout_id = 0;
-        private SaveOperation save_operation;
+        private SaveDelegate save_delegate;
 
-        public AutosaveCoordinator(owned SaveOperation save_operation) {
-            this.save_operation = (owned) save_operation;
+        public AutosaveCoordinator(owned SaveDelegate save_delegate) {
+            this.save_delegate = (owned) save_delegate;
         }
 
         public void schedule(uint delay_ms = DEFAULT_DELAY_MS) {
             cancel();
             timeout_id = Timeout.add(delay_ms, () => {
                 timeout_id = 0;
-                save_operation();
+                save_delegate();
                 return false;
             });
         }
@@ -34,7 +32,7 @@ namespace Knotes {
                 return;
             }
             cancel();
-            save_operation();
+            save_delegate();
         }
     }
 }

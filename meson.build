@@ -33,19 +33,22 @@ notebook_application_test = executable(
         'tests/notebook_application_test.vala',
         'src/domain/note.vala',
         'src/domain/folder.vala',
-        'src/application/notebook_catalog.vala',
-        'src/application/notebook_workspace.vala',
-        'src/application/asset_import_result.vala',
-        'src/application/duplicate_note_result.vala',
-        'src/application/move_result.vala',
-        'src/application/rename_folder_result.vala',
+        'src/application/results/asset_import_result.vala',
+        'src/application/results/duplicate_note_result.vala',
+        'src/application/results/move_result.vala',
+        'src/application/results/rename_folder_result.vala',
+        'src/application/ports/autosave_scheduler.vala',
         'src/application/ports/note_repository.vala',
         'src/application/ports/folder_repository.vala',
         'src/application/ports/note_asset_repository.vala',
-        'src/application/note_service.vala',
-        'src/application/folder_service.vala',
-        'src/application/note_asset_service.vala',
-        'src/presentation/editor/autosave_coordinator.vala'
+        'src/application/workspace/notebook_catalog.vala',
+        'src/application/workspace/notebook_workspace.vala',
+        'src/application/services/note_service.vala',
+        'src/application/services/folder_service.vala',
+        'src/application/services/note_asset_service.vala',
+        'src/application/editing/autosave_coordinator.vala',
+        'src/application/editing/autosave_factory.vala',
+        'src/application/editing/note_editing_session.vala'
     ),
     dependencies: [
         dependency('glib-2.0'),
@@ -62,7 +65,7 @@ json_notebook_repository_test = executable(
         'tests/json_notebook_repository_test.vala',
         'src/domain/note.vala',
         'src/domain/folder.vala',
-        'src/application/asset_import_result.vala',
+        'src/application/results/asset_import_result.vala',
         'src/application/ports/note_repository.vala',
         'src/application/ports/folder_repository.vala',
         'src/application/ports/note_asset_repository.vala',
@@ -90,7 +93,7 @@ sidebar_state_test = executable(
         'tests/sidebar_state_test.vala',
         'src/domain/note.vala',
         'src/domain/folder.vala',
-        'src/application/notebook_catalog.vala',
+        'src/application/workspace/notebook_catalog.vala',
         'src/presentation/sidebar/sidebar_selection_model.vala',
         'src/presentation/sidebar/sidebar_drag_item.vala'
     ),
@@ -104,10 +107,14 @@ test('sidebar-state', sidebar_state_test)
 
 markdown_rendering_test = executable(
     'markdown-rendering-test',
-    files('tests/markdown_rendering_test.vala'),
+    files(
+        'tests/markdown_rendering_test.vala',
+        'src/presentation/editor/markdown_renderer.vala'
+    ),
     libmarkdown_vapi,
     dependencies: [
         dependency('glib-2.0'),
+        dependency('gobject-2.0'),
         markdown_dependency
     ]
 )

@@ -4,12 +4,14 @@ namespace Knotes {
         private const string ASSET_URI_SCHEME = "knotes-asset";
 
         private NoteAssetService asset_service;
+        private MarkdownRenderer markdown_renderer;
         private WebKit.WebView web_view;
         private string? current_note_id;
 
         public MarkdownPreviewPane(NoteAssetService asset_service) {
             Object(orientation: Gtk.Orientation.VERTICAL);
             this.asset_service = asset_service;
+            markdown_renderer = new MarkdownRenderer();
             web_view = new WebKit.WebView();
             web_view.hexpand = true;
             web_view.vexpand = true;
@@ -19,24 +21,7 @@ namespace Knotes {
 
         public void render(string? note_id, string markdown) {
             current_note_id = note_id;
-            var flags = new Markdown.DocumentFlags();
-            flags.enable(Markdown.Option.NOHTML);
-            flags.enable(Markdown.Option.SAFELINK);
-            var document = new Markdown.Document.from_gfm_string(
-                markdown,
-                markdown.length,
-                flags
-            );
-            if (!document.compile(flags)) {
-                warning("Failed to compile Markdown preview");
-                return;
-            }
-
-            char* rendered_markdown;
-            var rendered_length = document.document(out rendered_markdown);
-            var rendered_html = rendered_length > 0 && rendered_markdown != null
-                ? (string) rendered_markdown
-                : "";
+            var rendered_html = markdown_renderer.render(markdown);
             var base_uri = note_id != null
                 ? "%s://note/%s/".printf(
                     ASSET_URI_SCHEME,
@@ -106,7 +91,7 @@ namespace Knotes {
                     <meta charset="utf-8">
                     <meta name="color-scheme" content="light dark">
                     <meta http-equiv="Content-Security-Policy"
-                          content="default-src 'none'; style-src 'unsafe-inline'; img-src data: knotes-asset:">
+                          content="default-src 'none'; style-src 'unsafe-inline'; img-src data: https: knotes-asset:">
                     <style>
                       :root { color-scheme: light dark; }
                       body { box-sizing: border-box; max-width: 52rem; margin: 0 auto; padding: 1rem; font: 1rem/1.55 system-ui, sans-serif; overflow-wrap: anywhere; }

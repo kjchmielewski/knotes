@@ -11,11 +11,13 @@ namespace Knotes {
             FolderRepository folder_repository = new JsonFolderRepository(layout);
             NoteAssetRepository asset_repository = new JsonNoteAssetRepository(asset_storage);
             var workspace = new NotebookWorkspace(note_repository, folder_repository);
+            var note_service = new NoteService(note_repository, asset_repository, workspace);
             return new ApplicationServices(
                 workspace,
-                new NoteService(note_repository, asset_repository, workspace),
+                note_service,
                 new FolderService(folder_repository, note_repository, workspace),
-                new NoteAssetService(asset_repository, workspace)
+                new NoteAssetService(asset_repository, workspace),
+                new NoteEditingSession(note_service, new DefaultAutosaveFactory())
             );
         }
     }
