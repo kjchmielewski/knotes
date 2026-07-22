@@ -44,11 +44,11 @@ Use 4-space indentation, namespace app code under `Knotes`, and follow the exist
 
 Dependencies point inward: presentation calls application services, application depends on domain and repository ports, and infrastructure implements those ports. Domain code must not import GTK, Adwaita, WebKit, JSON-GLib, or filesystem APIs. Keep serialization in mappers and construct concrete repositories only in `src/bootstrap/`. UI classes must request mutations through `NoteService`, `FolderService`, or `NoteAssetService` rather than writing files or mutating `NotebookCatalog` directly.
 
-Moving notes and folders is an application use case. Keep destination validation and cycle detection in `NotebookCatalog`, `NoteService`, and `FolderService`; presentation code may pre-filter invalid drop targets but must still handle every `MoveResult`. Folder moves must reject the folder itself and all descendants. Preserve selected IDs, the search query, and expanded folder state when rebuilding the sidebar after a move.
+Moving notes and folders is an application use case. Keep destination validation and cycle detection in `NotebookCatalog`, `NoteService`, and `FolderService`; presentation code may pre-filter invalid drop targets for UX purposes, but must branch on every `MoveResult` variant - showing a user-visible error message for failure cases and updating the sidebar only on success. Folder moves must reject the folder itself and all descendants.
 
 Renaming a folder is also an application use case. Normalize and validate names in `FolderService`, return a `RenameFolderResult`, and restore the previous name if persistence fails. Rebuild the derived sidebar tree after a successful rename so labels and destination paths stay consistent without changing the selected folder ID.
 
-Translatable UI strings should go through the gettext helper in `src/i18n.vala`. When adding new files with user-visible strings, update `po/POTFILES`.
+Translatable UI strings should go through the gettext helper in `src/i18n.vala`. When adding new files with user-visible strings, update `po/POTFILES`. Only presentation-layer files should contain translatable strings. Domain and application files must not call the gettext helper or reference `i18n.vala`.
 
 An empty folder_id string ("") means the root/unfiled level; never use null or any other sentinel.
 
@@ -58,7 +58,7 @@ Treat `meson compile -C builddir` and `meson test -C builddir --print-errorlogs`
 
 For move behavior, test note moves between folders and the root, folder moves between parents and the top level, no-op moves, missing destinations, cycle rejection, and persistence rollback. Manually verify both drag-and-drop and the keyboard-accessible move dialog (`Shift+F10` on a focused note or folder).
 
-For rename behavior, test whitespace normalization, empty and unchanged names, missing folders, successful persistence, and rollback after a storage error. Manually verify that the selected folder, active search, and expanded tree state survive the rebuild.
+For rename behavior, test whitespace normalization, empty and unchanged names, missing folders, successful persistence, and rollback after a storage error. Manually verify the rename flow after rebuild.
 
 ## Commit & Pull Request Guidelines
 

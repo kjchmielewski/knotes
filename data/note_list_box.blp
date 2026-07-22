@@ -28,9 +28,9 @@ template $KnotesNoteListBox : Gtk.Box {
           expanded: true;
           vexpand: true;
           margin-start: 8;
-          margin-end: 8;
 
           label-widget: Gtk.Button all_notes_button {
+            margin-end: 8;
           };
 
           child: Gtk.ScrolledWindow {
@@ -40,7 +40,8 @@ template $KnotesNoteListBox : Gtk.Box {
             Gtk.Box note_tree_box {
               orientation: vertical;
               spacing: 2;
-              margin-start: 16;
+              margin-start: 8;
+              margin-end: 8;
               margin-bottom: 8;
             }
           };

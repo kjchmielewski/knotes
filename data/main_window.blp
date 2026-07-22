@@ -19,14 +19,29 @@ template $KnotesMainWindow : Adw.ApplicationWindow {
         styles ["flat", "circular"]
       }
 
-      [end]
-      Gtk.MenuButton header_menu_button {
-        icon-name: "open-menu-symbolic";
-        tooltip-text: _("Menu");
+      [start]
+      Gtk.Button header_new_button {
+        icon-name: "document-new-symbolic";
+        tooltip-text: _("New note");
         styles ["flat", "circular"]
       }
 
-      [end]
+      [start]
+      Gtk.Button header_new_folder_button {
+        icon-name: "folder-new-symbolic";
+        tooltip-text: _("New folder");
+        styles ["flat", "circular"]
+      }
+
+      [start]
+      Gtk.Button header_rename_folder_button {
+        icon-name: "document-edit-symbolic";
+        tooltip-text: _("Rename folder");
+        sensitive: false;
+        styles ["flat", "circular"]
+      }
+
+      [start]
       Gtk.Button header_delete_folder_button {
         icon-name: "edit-delete-symbolic";
         tooltip-text: _("Delete folder");
@@ -35,24 +50,9 @@ template $KnotesMainWindow : Adw.ApplicationWindow {
       }
 
       [end]
-      Gtk.Button header_rename_folder_button {
-        icon-name: "document-edit-symbolic";
-        tooltip-text: _("Rename folder");
-        sensitive: false;
-        styles ["flat", "circular"]
-      }
-
-      [end]
-      Gtk.Button header_new_folder_button {
-        icon-name: "folder-new-symbolic";
-        tooltip-text: _("New folder");
-        styles ["flat", "circular"]
-      }
-
-      [end]
-      Gtk.Button header_new_button {
-        icon-name: "document-new-symbolic";
-        tooltip-text: _("New note");
+      Gtk.MenuButton header_menu_button {
+        icon-name: "open-menu-symbolic";
+        tooltip-text: _("Menu");
         styles ["flat", "circular"]
       }
     }

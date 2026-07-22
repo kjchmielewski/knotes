@@ -5,6 +5,7 @@ namespace Knotes {
     public class SidebarTreeView : Gtk.Box {
         private const string SELECTED_FOLDER_CSS_CLASS = "selected-folder";
         private const string DROP_TARGET_CSS_CLASS = "move-drop-target";
+        private const int TREE_LEVEL_INDENT = 8;
 
         private NotebookCatalog catalog;
         private HashMap<string, NoteRow> note_rows;
@@ -194,7 +195,7 @@ namespace Knotes {
             }
 
             var child_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 2);
-            child_box.margin_start = 16;
+            child_box.margin_start = TREE_LEVEL_INDENT;
             append_notes_for_folder(folder.id, child_box);
             foreach (var child in children) {
                 append_folder(child, child_box);
